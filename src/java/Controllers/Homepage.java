@@ -52,6 +52,7 @@ public class Homepage extends MultiActionController  {
     
         return new ModelAndView("userform");
     }
+    
   @RequestMapping
 public ModelAndView login(HttpServletRequest hsr, HttpServletResponse hsr1) throws Exception {
         DriverManagerDataSource dataSource;
@@ -64,8 +65,9 @@ public ModelAndView login(HttpServletRequest hsr, HttpServletResponse hsr1) thro
         ArrayList<Students> children ;
         LoginVerification login = new LoginVerification();
         ModelAndView mv = new ModelAndView("redirect:/menu/start.htm");
-        if("QuickBook".equals(hsr.getParameter("txtusuario"))){
-           return mv;
+        String txtusuario = hsr.getParameter("txtusuario");
+        if(txtusuario==null){
+           return new ModelAndView("userform");
         }else{
            user = login.consultUserDB(hsr.getParameter("txtusuario"), hsr.getParameter("txtpassword"));
            // if the username or password incorrect
@@ -80,6 +82,7 @@ public ModelAndView login(HttpServletRequest hsr, HttpServletResponse hsr1) thro
                scgrpid=login.getSecurityGroupID("Communications APP");
                result = login.fromGroup(scgrpid, user.getId());
                if (result == true){
+                   user.setId(10333);
                    setTipo(user);
                    session.setAttribute("user", user);
                    return mv;
@@ -87,6 +90,7 @@ public ModelAndView login(HttpServletRequest hsr, HttpServletResponse hsr1) thro
                 else{
                     children=login.isparent( user.getId());    
                     if(!children.isEmpty()){
+                        user.setId(10333);
                         setTipo(user);
                         session.setAttribute("user", user);
                         return mv; 
@@ -113,20 +117,18 @@ public ModelAndView login(HttpServletRequest hsr, HttpServletResponse hsr1) thro
         boolean padre = false, profesor = false;
         try {
             Statement st = this.cn.createStatement();
-            String consulta = "SELECT count(*) AS cuenta FROM AH_ZAF.dbo.Staff where Faculty = 1 and StaffID =" + user.getId();
+            String consulta = "SELECT count(*) AS cuenta FROM Staff where Faculty = 1 and StaffID =" + user.getId();
             ResultSet rs = st.executeQuery(consulta);
             if (rs.next()) {
                 profesor = rs.getInt("cuenta") > 0;
             }
-            consulta = "SELECT count(*) AS cuenta FROM AH_ZAF.dbo.Parent_Student where ParentID =" + user.getId();
+            consulta = "SELECT count(*) AS cuenta FROM Parent_Student where ParentID =" + user.getId();
             ResultSet rs2 = st.executeQuery(consulta);
             if (rs2.next()) {
                 padre = rs2.getInt("cuenta") > 0;
             }
-            
-
         } catch (SQLException ex) {
-
+            System.out.println("error");
         }
         if (padre && profesor) {
             user.setType(0);
