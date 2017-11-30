@@ -53,10 +53,9 @@ public class EnviarMensaje {
         User us = (User)hsr.getSession().getAttribute("user");
    
         ModelAndView mv;
-        if(us.getType()==2){
-            mv = new ModelAndView("enviarmensaje");
-            List <Level> grades = new ArrayList();
-           try{
+        mv = new ModelAndView("enviarmensaje");
+        List <Level> grades = new ArrayList();
+        try{
             DriverManagerDataSource dataSource;
             dataSource = (DriverManagerDataSource)this.getBean("dataSourceAH",hsr.getServletContext());
             this.cn = dataSource.getConnection();
@@ -75,15 +74,12 @@ public class EnviarMensaje {
                 x.setName(rs.getString("GradeLevel"));
             grades.add(x);
             }
-           }catch(SQLException ex){
+        }catch(SQLException ex){
                StringWriter errors = new StringWriter();
                 ex.printStackTrace(new PrintWriter(errors));
                 //log.error(ex+errors.toString());
-           }
-                mv.addObject("gradelevels", grades);
         }
-        else 
-            mv = new ModelAndView("enviarmensaje");
+        mv.addObject("gradelevels", grades);
         return mv;
     }
     
@@ -118,9 +114,13 @@ public class EnviarMensaje {
            }
         else
            try{
-            ResultSet rs = st.executeQuery("SELECT * FROM Classes where (StaffID="+u.getId()
-                    +" or AltStaffID="+u.getId()+" or AidID="+u.getId()
-                    + ")");
+            ResultSet rs;
+            if(u.getId()==2)   
+                rs = st.executeQuery("SELECT * FROM Classes where (StaffID="+u.getId()
+                        +" or AltStaffID="+u.getId()+" or AidID="+u.getId()
+                        + ")");
+            else
+                rs = st.executeQuery("SELECT * FROM Classes");
             Level l = new Level();
             l.setName("Select class");
             grades.add(l);

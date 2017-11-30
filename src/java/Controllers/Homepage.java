@@ -53,20 +53,23 @@ public class Homepage extends MultiActionController  {
     }
   @RequestMapping
 public ModelAndView login(HttpServletRequest hsr, HttpServletResponse hsr1) throws Exception {
+        DriverManagerDataSource dataSource;
+        dataSource = (DriverManagerDataSource) this.getBean("dataSourceAH", hsr.getServletContext());
+        this.cn = dataSource.getConnection();
         HttpSession session = hsr.getSession();
         User user = new User();
         int scgrpid = 0;
         boolean result = false;
         ArrayList<Students> children ;
         LoginVerification login = new LoginVerification();
+        ModelAndView mv = new ModelAndView("redirect:/menu/start.htm");
         if("QuickBook".equals(hsr.getParameter("txtusuario"))){
-           ModelAndView mv = new ModelAndView("redirect:/suhomepage.htm?opcion=loadconfig"); 
            return mv;
         }else{
            user = login.consultUserDB(hsr.getParameter("txtusuario"), hsr.getParameter("txtpassword"));
            // if the username or password incorrect
            if(user.getId()==0){
-                ModelAndView mv = new ModelAndView("userform");
+                mv = new ModelAndView("userform");
                 String message = "Username or password incorrect";
                 mv.addObject("message", message);
                 return mv;
@@ -76,24 +79,19 @@ public ModelAndView login(HttpServletRequest hsr, HttpServletResponse hsr1) thro
                scgrpid=login.getSecurityGroupID("MontesoriTest");
                result = login.fromGroup(scgrpid, user.getId());
                if (result == true){
-                   ModelAndView mv = new ModelAndView("redirect:/homepage/loadLessons.htm");
-                   String  message = "welcome user";
-                   //user.;
+                   setTipo(user);
                    session.setAttribute("user", user);
-                   mv.addObject("message", message);
                    return mv;
                }
                 else{
                     children=login.isparent( user.getId());    
                     if(!children.isEmpty()){
-                        ModelAndView mv = new ModelAndView("redirect:/parentpage/start.htm");
-                        String  message = "welcome user";
+                        setTipo(user);
                         session.setAttribute("user", user);
-                        mv.addObject("message", message);
                         return mv; 
                     }
                     else{
-                       ModelAndView mv = new ModelAndView("userform");
+                       mv = new ModelAndView("userform");
                        String message = "Username or Password incorrect";
                        mv.addObject("message", message);
                        return mv;
@@ -114,7 +112,7 @@ public ModelAndView login(HttpServletRequest hsr, HttpServletResponse hsr1) thro
         boolean padre = false, profesor = false;
         try {
             Statement st = this.cn.createStatement();
-            String consulta = "SELECT count(*) AS cuenta FROM AH_ZAF.dbo.Staff where StaffID =" + user.getId();
+            String consulta = "SELECT count(*) AS cuenta FROM AH_ZAF.dbo.Staff where Faculty = 1 and StaffID =" + user.getId();
             ResultSet rs = st.executeQuery(consulta);
             if (rs.next()) {
                 profesor = rs.getInt("cuenta") > 0;
@@ -124,6 +122,7 @@ public ModelAndView login(HttpServletRequest hsr, HttpServletResponse hsr1) thro
             if (rs2.next()) {
                 padre = rs2.getInt("cuenta") > 0;
             }
+            
 
         } catch (SQLException ex) {
 
@@ -132,8 +131,10 @@ public ModelAndView login(HttpServletRequest hsr, HttpServletResponse hsr1) thro
             user.setType(0);
         } else if (padre) {
             user.setType(1);
-        } else {
+        } else if(profesor){
             user.setType(2);
+        } else {
+            user.setType(3);
         }
     }
 
@@ -264,7 +265,7 @@ public ModelAndView login(HttpServletRequest hsr, HttpServletResponse hsr1) thro
         if(u.getType() == 1){
             mv = new ModelAndView("redirect:/enviarmensajepadre/start.htm");
         }
-        else if(u.getType() == 2)
+        else
             mv = new ModelAndView("redirect:/enviarmensaje/start.htm");
         return mv;
     }

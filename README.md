@@ -1,2 +1,0 @@
-# comunications
-Internal email service
