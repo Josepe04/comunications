@@ -50,7 +50,7 @@ public class EnviarMensaje {
     }
     @RequestMapping("/enviarmensaje/start.htm")
     public ModelAndView start(HttpServletRequest hsr, HttpServletResponse hsr1) throws Exception {
-        User us = (User)hsr.getSession().getAttribute("user");
+        User u = (User)hsr.getSession().getAttribute("user");
    
         ModelAndView mv;
         mv = new ModelAndView("enviarmensaje");
@@ -61,17 +61,23 @@ public class EnviarMensaje {
             this.cn = dataSource.getConnection();
             mv.addObject("listaAlumnos", this.getStudents());
             Statement st = this.cn.createStatement();
-            ResultSet rs = st.executeQuery("SELECT GradeLevel,GradeLevelID FROM GradeLevels");
+            ResultSet rs;
+            if(u.getId()==2 || u.getId()==0)   
+                rs = st.executeQuery("SELECT * FROM Classes where (StaffID="+u.getId()
+                        +" or AltStaffID="+u.getId()+" or AidID="+u.getId()
+                        + ")");
+            else
+                rs = st.executeQuery("SELECT * FROM Classes");
             Level l = new Level();
-            l.setName("Select level");
+            l.setName("Select class");
             grades.add(l);
             while(rs.next())
             {
                 Level x = new Level();
                  String[] ids = new String[1];
-                 ids[0]=""+rs.getInt("GradeLevelID");
+                 ids[0]=""+rs.getInt("ClassID");
                 x.setId(ids);
-                x.setName(rs.getString("GradeLevel"));
+                x.setName(rs.getString("Name"));
             grades.add(x);
             }
         }catch(SQLException ex){
@@ -115,7 +121,7 @@ public class EnviarMensaje {
         else
            try{
             ResultSet rs;
-            if(u.getId()==2)   
+            if(u.getId()==2 || u.getId()==0)   
                 rs = st.executeQuery("SELECT * FROM Classes where (StaffID="+u.getId()
                         +" or AltStaffID="+u.getId()+" or AidID="+u.getId()
                         + ")");

@@ -422,11 +422,20 @@
                     </div>
 
                     <div class="col-xs-3">
-                        <label>Filter</label>
-                        <select class="form-control" id="filter" style="margin-bottom: 5px;" onchange="comboSelectFilter()">
-                            <option value="0">levels</option>
-                            <option value="1">clases</option>
-                        </select>
+                        <c:set value="${user.type}" var="num"/>
+                        <c:choose>
+                            <c:when test="${num=='2'}">
+                            </c:when>    
+                            <c:when test="${num=='0'}">
+                            </c:when>
+                            <c:otherwise>
+                                <label>Filter</label>
+                                <select class="form-control" id="filter" style="margin-bottom: 5px;" onchange="comboSelectFilter()">
+                                    <option value="1">clases</option>
+                                    <option value="0">levels</option>
+                                </select>
+                            </c:otherwise>
+                        </c:choose>
                         <div class="col-xs-12" id="filtro">
                             <select class="form-control" name="levelStudent" id="pepe" style="width: 100% !important;" onchange="comboSelectionLevelStudent()">
                                 <c:forEach var="levels" items="${gradelevels}">
