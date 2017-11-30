@@ -15,11 +15,12 @@ import java.util.ArrayList;
  * @author Norhan
  */
 public class Mensaje {
-  
+
     private String asunto;
     private String texto;
     private String sender;
     private int parentid;
+    private int id;
     private int prio;
     private String fecha;
     private ArrayList<String> destinatarios; 
@@ -79,12 +80,37 @@ public class Mensaje {
     public int getPrio() {
         return prio;
     }
+    
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int getId() {
+        return id;
+    }
 
     public Mensaje(String asunto, String texto, int prio, String sender) {
         this.asunto = asunto;
         this.texto = texto;
         this.prio = prio;
         this.sender = sender;
+    }
+    
+    public Mensaje(int id,String asunto, String texto, int prio, String sender) {
+        this.asunto = asunto;
+        this.texto = texto;
+        this.prio = prio;
+        this.sender = sender;
+        this.id = id;
+    }
+    
+    public Mensaje(int id,String asunto, String texto, int prio, String sender,String fecha, int parentid) {
+        this.asunto = asunto;
+        this.texto = texto;
+        this.prio = prio;
+        this.sender = sender;
+        this.fecha = fecha;
+        this.id = id;
     }
     
     public Mensaje(String asunto, String texto, int prio, String sender,String fecha, int parentid) {

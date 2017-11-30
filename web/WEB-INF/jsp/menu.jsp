@@ -269,7 +269,7 @@
                                 <tbody>
                                     <c:forEach var="mensaje" items="${lista}" >
                                         <tr>
-                                            <td>${mensaje.parentid}</td>
+                                            <td>${mensaje.id}</td>
                                             <td>${mensaje.asunto}</td>
                                             <td>${mensaje.sender}</td>
                                             <td>${mensaje.texto}</td>

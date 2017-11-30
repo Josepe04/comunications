@@ -11,6 +11,7 @@ package Controllers;
  */
 
 
+import static Controllers.EnviarMensaje.createFolder;
 import com.google.gson.Gson;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -167,6 +168,12 @@ public ModelAndView login(HttpServletRequest hsr, HttpServletResponse hsr1) thro
          this.cn = dataSource.getConnection();
          Statement st = this.cn.createStatement();
          try{
+            ResultSet folder = st.executeQuery("select * from folder where idpersona="+u.getId()+" and nombre='inbox'");
+            if(!folder.next())
+                EnviarMensaje.createFolder(st,""+u.getId(),"inbox");
+            ResultSet folder2 = st.executeQuery("select * from folder where idpersona="+u.getId()+" and nombre='sent'");
+            if(!folder2.next())
+                EnviarMensaje.createFolder(st,""+u.getId(),"sent");
             ResultSet rs = st.executeQuery("select mensaje.msgid,parentid,fecha,prio,asunto,texto,msfrom "
                     + "from mensaje inner join msg_folder on mensaje.msgid=msg_folder.msgid "
                     + "inner join folder on msg_folder.idfolder=folder.idfolder and folder.nombre='inbox'"
@@ -176,7 +183,7 @@ public ModelAndView login(HttpServletRequest hsr, HttpServletResponse hsr1) thro
                 String text = rs.getString("texto");
                 if(text.length()>20)
                     text = recolocar(text.substring(0, 20));
-                listaMensajes.add(new Mensaje(rs.getString("asunto"),text,
+                listaMensajes.add(new Mensaje(rs.getInt(1),rs.getString("asunto"),text,
                      Integer.parseInt(rs.getString("prio")),rs.getString("msfrom"),rs.getString("fecha"),1));
             }
             ResultSet rs2 = st.executeQuery("select nombre,idfolder from folder "
@@ -243,7 +250,7 @@ public ModelAndView login(HttpServletRequest hsr, HttpServletResponse hsr1) thro
                 String text = rs.getString("texto");
                 if(text.length()>20)
                     text = recolocar(text.substring(0, 20));
-                listaMensajes.add(new Mensaje(rs.getString("asunto"),text,
+                listaMensajes.add(new Mensaje(rs.getInt(1),rs.getString("asunto"),text,
                      Integer.parseInt(rs.getString("prio")),"chemamola",rs.getString("fecha"),1));
             }
         }catch(SQLException e){
