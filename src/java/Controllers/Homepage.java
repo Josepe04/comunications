@@ -76,7 +76,7 @@ public ModelAndView login(HttpServletRequest hsr, HttpServletResponse hsr1) thro
             }
             //if the user is not part of the group
             else{
-               scgrpid=login.getSecurityGroupID("MontesoriTest");
+               scgrpid=login.getSecurityGroupID("Communications APP");
                result = login.fromGroup(scgrpid, user.getId());
                if (result == true){
                    setTipo(user);
