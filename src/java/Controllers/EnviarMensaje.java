@@ -336,7 +336,7 @@ public class EnviarMensaje {
         else
             m = new Mensaje(asunto,text,0,1,"chemamola");
         m.setDestinatarios(destinationEmails);
-        //SendMail.SendMail(m);
+       SendMail.SendMail(m);
         return mv;
     }
     

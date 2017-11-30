@@ -38,8 +38,8 @@ public class SendMail {
         String host = "smtp.gmail.com";
         props.put("mail.smtp.starttls.enable", "true");
         props.put("mail.smtp.host", host);
-        props.put("mail.smtp.user", "norhanmhmd");
-        props.put("mail.smtp.password", "AlRahman1");
+        props.put("mail.smtp.user", "info.ca.pan2018");
+        props.put("mail.smtp.password", "Kokowawa1");
         props.put("mail.smtp.port", "587");
         props.put("mail.smtp.auth", "true");
 //     
@@ -60,7 +60,7 @@ public class SendMail {
     //            Transport.send(message);
 
              Transport transport = session.getTransport("smtp");
-                transport.connect(host, "norhanmhmd", "AlRahman1");
+                transport.connect(host, "info.ca.pan2018", "Kokowawa1");
                 transport.sendMessage(message, message.getAllRecipients());
                 transport.close();
                System.out.println("Sent message successfully....");
