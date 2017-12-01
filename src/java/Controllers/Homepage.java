@@ -48,12 +48,13 @@ public class Homepage extends MultiActionController  {
         Object beanobject = contexto.getBean(nombrebean);
         return beanobject;
 }
+    @RequestMapping
     public ModelAndView inicio(HttpServletRequest hsr, HttpServletResponse hsr1) throws Exception {
     
         return new ModelAndView("userform");
     }
     
-  @RequestMapping
+  @RequestMapping("/login.htm")
 public ModelAndView login(HttpServletRequest hsr, HttpServletResponse hsr1) throws Exception {
         DriverManagerDataSource dataSource;
         dataSource = (DriverManagerDataSource) this.getBean("dataSourceAH", hsr.getServletContext());

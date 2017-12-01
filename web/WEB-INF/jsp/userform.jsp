@@ -33,7 +33,7 @@
 
                         <div class="panel-body" >
 
-                            <form name ="form1" action="userform.htm?opcion=login" method="post" >
+                            <form name ="form1" action="login.htm" method="post" >
                                 <div
                                     <c:if test="${message != null}">
                                     <h5 style="color:blue">
@@ -42,21 +42,21 @@
                                 </c:if>
                                 </div>
                                 <div class="form-group">
-                                    <label for="exampleInputEmail1"></label> 
-                                    <input type="text" class="form-control" name="txtusuario" id="txtusuario" placeholder="" required="required">    
+                                    <label for="exampleInputEmail1">Username</label> 
+                                    <input type="text" class="form-control" name="txtusuario" id="txtusuario" placeholder="Username" required="required">    
                                 </div>
                                 <div class="form-group">
-                                    <label for="exampleInputPassword1"><%--<spring:message code="etiq.txtpassword"/>--%></label> 
-                                    <input type="password" class="form-control" name="txtpassword" id="txtpassword" placeholder="" ><!--required="required"-->
+                                    <label for="exampleInputPassword1">Password</label> 
+                                    <input type="password" class="form-control" name="txtpassword" id="txtpassword" placeholder="Password" ><!--required="required"-->
                                 </div>
                                 <button type="submit" name="submit" value='' style="width: 100%; font-size:1.1em;" class="btn btn-large btn btn-success btn-lg btn-block" ><b>Login</b></button>
 
                             </form>
-                            <div class="center-block text-center">
+<!--                            <div class="center-block text-center">
                                 <a class="btn" href="datosIdioma.htm?lenguaje=en"></a>
                                 <a class="btn" href="datosIdioma.htm?lenguaje=es"></a>
                                 <a class="btn" href="datosIdioma.htm?lenguaje=ar"></a>
-                            </div>
+                            </div>-->
                         </div>
                     </div>
 
