@@ -114,11 +114,11 @@ public class EnviarmensajePadre {
         this.cn = dataSource.getConnection();
         Statement st = this.cn.createStatement();
         for(String dest:destinationList){
-          ResultSet rs = st.executeQuery("select * from folder where idpersona="+dest+" and nombre='inbox'");
+          ResultSet rs = st.executeQuery("select * from folder where idpersona="+dest+" and nombre='Inbox'");
           if(rs.next())
               folderList.add(rs.getString("idfolder"));
           else
-              folderList.add(EnviarMensaje.createFolder(st,dest,"inbox"));
+              folderList.add(EnviarMensaje.createFolder(st,dest,"Inbox"));
         }
         ResultSet rs3 = st.executeQuery("select * from folder where idpersona="+u.getId()+" and nombre='sent'");
         if(rs3.next())

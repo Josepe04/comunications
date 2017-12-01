@@ -64,18 +64,14 @@ public class SendMail {
                 transport.sendMessage(message, message.getAllRecipients());
                 transport.close();
                System.out.println("Sent message successfully....");
-                Class.forName("org.postgresql.Driver");
-                Connection cn = DriverManager.getConnection("jdbc:postgresql://192.168.1.3:5432/Maintenance_jobs?user=eduweb&password=Madrid2016");
+              //  Class.forName("org.postgresql.Driver");
+              //  Connection cn = DriverManager.getConnection("jdbc:postgresql://192.168.1.3:5432/Maintenance_jobs?user=eduweb&password=Madrid2016");
             //ActivityLog.log(m.getJob_id(),m.getRw_event_id(),m.getRecipient(),m.getBody(), cn);
-            Statement st = cn.createStatement();
+//            Statement st = cn.createStatement();
             //st.executeUpdate("update jobs set lastrun = now() where id ="+m.getJob_id());
 
-            } catch (MessagingException e) {
+            }catch (MessagingException e) {
                 throw new RuntimeException(e);
-            } catch (ClassNotFoundException ex) {
-                Logger.getLogger(SendMail.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (SQLException ex) {
-                Logger.getLogger(SendMail.class.getName()).log(Level.SEVERE, null, ex);
             }
         //}
     }

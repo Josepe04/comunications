@@ -83,7 +83,7 @@ public ModelAndView login(HttpServletRequest hsr, HttpServletResponse hsr1) thro
                scgrpid=login.getSecurityGroupID("Communications APP");
                result = login.fromGroup(scgrpid, user.getId());
                if (result == true){
-                   user.setId(10333);
+                   
                    setTipo(user);
                    session.setAttribute("user", user);
                    return mv;
@@ -91,7 +91,7 @@ public ModelAndView login(HttpServletRequest hsr, HttpServletResponse hsr1) thro
                 else{
                     children=login.isparent( user.getId());    
                     if(!children.isEmpty()){
-                        user.setId(10333);
+                        
                         setTipo(user);
                         session.setAttribute("user", user);
                         return mv; 
@@ -167,15 +167,15 @@ public ModelAndView login(HttpServletRequest hsr, HttpServletResponse hsr1) thro
          this.cn = dataSource.getConnection();
          Statement st = this.cn.createStatement();
          try{
-            ResultSet folder = st.executeQuery("select * from folder where idpersona="+u.getId()+" and nombre='inbox'");
+            ResultSet folder = st.executeQuery("select * from folder where idpersona="+u.getId()+" and nombre='Inbox'");
             if(!folder.next())
-                EnviarMensaje.createFolder(st,""+u.getId(),"inbox");
-            ResultSet folder2 = st.executeQuery("select * from folder where idpersona="+u.getId()+" and nombre='sent'");
+                EnviarMensaje.createFolder(st,""+u.getId(),"Inbox");
+            ResultSet folder2 = st.executeQuery("select * from folder where idpersona="+u.getId()+" and nombre='Sent'");
             if(!folder2.next())
-                EnviarMensaje.createFolder(st,""+u.getId(),"sent");
+                EnviarMensaje.createFolder(st,""+u.getId(),"Sent");
             ResultSet rs = st.executeQuery("select mensaje.msgid,msg_folder.idfolder,parentid,fecha,prio,asunto,texto,msfrom "
                     + "from mensaje inner join msg_folder on mensaje.msgid=msg_folder.msgid "
-                    + "inner join folder on msg_folder.idfolder=folder.idfolder and folder.nombre='inbox'"
+                    + "inner join folder on msg_folder.idfolder=folder.idfolder and folder.nombre='Inbox'"
                     + "inner join msg_from_to on msg_from_to.msto="+u.getId()
                     + " where folder.idpersona="+u.getId());
             while(rs.next()){
@@ -250,7 +250,7 @@ public ModelAndView login(HttpServletRequest hsr, HttpServletResponse hsr1) thro
                 if(text.length()>20)
                     text = recolocar(text.substring(0, 20));
                 listaMensajes.add(new Mensaje(Integer.parseInt(id),rs.getInt(1),rs.getString("asunto"),text,
-                     Integer.parseInt(rs.getString("prio")),"chemamola",rs.getString("fecha"),1));
+                     Integer.parseInt(rs.getString("prio")),"AppTest",rs.getString("fecha"),1));
             }
         }catch(SQLException e){
 

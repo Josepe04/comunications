@@ -431,8 +431,8 @@
                             <c:otherwise>
                                 <label>Filter</label>
                                 <select class="form-control" id="filter" style="margin-bottom: 5px;" onchange="comboSelectFilter()">
-                                    <option value="1">clases</option>
-                                    <option value="0">levels</option>
+                                    <option value="1">Classes</option>
+                                    <option value="0">Levels</option>
                                 </select>
                             </c:otherwise>
                         </c:choose>

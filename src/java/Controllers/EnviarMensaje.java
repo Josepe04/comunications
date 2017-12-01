@@ -310,13 +310,13 @@ public class EnviarMensaje {
         this.cn = dataSource.getConnection();
         st = this.cn.createStatement(); 
         for(String dest:destinationList){
-          ResultSet rs = st.executeQuery("select * from folder where idpersona="+dest+" and nombre='inbox'");
+          ResultSet rs = st.executeQuery("select * from folder where idpersona="+dest+" and nombre='Inbox'");
           if(rs.next())
               folderList.add(rs.getString("idfolder"));
           else
-              folderList.add(createFolder(st,dest,"inbox"));
+              folderList.add(createFolder(st,dest,"Inbox"));
         }
-        ResultSet rs3 = st.executeQuery("select * from folder where idpersona="+u.getId()+" and nombre='sent'");
+        ResultSet rs3 = st.executeQuery("select * from folder where idpersona="+u.getId()+" and nombre='Sent'");
         if(rs3.next())
             folderList.add(rs3.getString("idfolder"));
         else
@@ -340,7 +340,7 @@ public class EnviarMensaje {
         if(parentid!=null)
             m = new Mensaje(asunto,text,Integer.parseInt(parentid),1,"chemamola");
         else
-            m = new Mensaje(asunto,text,0,1,"chemamola");
+            m = new Mensaje(asunto,text,0,1,"AppTest");
         m.setDestinatarios(destinationEmails);
        SendMail.SendMail(m);
         return mv;
