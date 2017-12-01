@@ -17,9 +17,25 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>JSP Page</title>
         <script>
-             function append_tabla_folders(seleccion) {
+            function borrarmsg(id,folderid){
+                console.log(id);
+                console.log(folderid);
+                $.ajax({
+                    type: "POST",
+                    url: "borrarmsg.htm?id="+id,
+                    data: id ,
+                    dataType: 'text' ,           
                     
-                } 
+                    success: function() {
+                        
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        console.log(xhr.status);
+                        console.log(xhr.responseText);
+                        console.log(thrownError);
+                    }
+                });
+            }
             function createFolder(nombre){
                 $.ajax({
                         type: "POST",
@@ -186,8 +202,8 @@
                                 '</table>');
                             $("#table_id").append($('<tbody></tbody>'));
                             $.each(json, function(i) {
-                                var columna = $('<tr>'+
-                                        '<td>'+json[i].parentid+'</td>'+
+                                var columna = $('<tr id="tr_'+json[i].id+'">'+
+                                        '<td>'+json[i].id+'</td>'+
                                         '<td>'+json[i].asunto+'</td>'+
                                         '<td>'+json[i].sender+'</td>'+
                                         '<td>'+json[i].texto+'</td>'+
@@ -196,7 +212,7 @@
                                                     '<input name="TXTid_lessons_modificar" type="image" src="<c:url value="/recursos/img/btn/btn_Edit.svg"/>" width="30px" data-placement="bottom" title="Reply">'+
                                                '</div>'+
                                                 '<div class="col-xs-6 sinpadding text-center">'+
-                                                    '<input class="delete" name="TXTid_lessons_eliminar" type="image" src="<c:url value="/recursos/img/btn/btn_delete.svg"/>" width="30px" data-placement="bottom" title="Delete">'+
+                                                    '<input id="borrar_button_'+json[i].id+'" onclick="borrarmsg('+json[i].id+','+json[i].folderid+')" class="delete" name="TXTid_lessons_eliminar" type="image" src="<c:url value="/recursos/img/btn/btn_delete.svg"/>" width="30px" data-placement="bottom" title="Delete">'+
                                                 '</div>'+
                                         '</tr>');   
                                 $('#table_id tbody').append(columna);
@@ -275,11 +291,13 @@
                                             <td>${mensaje.texto}</td>
                                             <td>${mensaje.fecha}</td>
                                             <td>
+                                                    <div class="col-xs-6 sinpadding text-center">
+                                                        <form:form action="vermsg.htm" method="POST">
+                                                            <input id="ver_button" name="ver_button" type="image" src="<c:url value="/recursos/img/btn/btn_details.svg"/>" value="${mensaje.id}" width="30px" data-placement="bottom" title="Details">
+                                                        </form:form>
+                                                    </div>
                                                 <div class="col-xs-6 sinpadding text-center">
-                                                    <input name="TXTid_lessons_detalles" type="image" src="<c:url value="/recursos/img/btn/btn_details.svg"/>" value="${lecciones.id}" width="30px" data-placement="bottom" title="Details">
-                                                </div>
-                                                <div class="col-xs-6 sinpadding text-center">
-                                                    <input  name="TXTid_lessons_eliminar" type="image" src="<c:url value="/recursos/img/btn/btn_delete.svg"/>" value="${lecciones.id}" width="30px" data-placement="bottom" title="Delete">
+                                                    <input id="borrar_button_${mensaje.id}" name="TXTid_lessons_eliminar" type="image" src="<c:url value="/recursos/img/btn/btn_delete.svg"/>" value="${mensaje.id}" onclick="borrarmsg()" width="30px" data-placement="bottom" title="Delete">
                                                 </div>
                                             </td>
                                         </tr>

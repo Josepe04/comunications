@@ -106,12 +106,8 @@ public ModelAndView login(HttpServletRequest hsr, HttpServletResponse hsr1) thro
          }
 }
 
-
-
-
         //user.setId(10333);
         //user.setId(10366);
-
 
     public void setTipo(User user) {
         boolean padre = false, profesor = false;
@@ -176,7 +172,7 @@ public ModelAndView login(HttpServletRequest hsr, HttpServletResponse hsr1) thro
             ResultSet folder2 = st.executeQuery("select * from folder where idpersona="+u.getId()+" and nombre='sent'");
             if(!folder2.next())
                 EnviarMensaje.createFolder(st,""+u.getId(),"sent");
-            ResultSet rs = st.executeQuery("select mensaje.msgid,parentid,fecha,prio,asunto,texto,msfrom "
+            ResultSet rs = st.executeQuery("select mensaje.msgid,msg_folder.idfolder,parentid,fecha,prio,asunto,texto,msfrom "
                     + "from mensaje inner join msg_folder on mensaje.msgid=msg_folder.msgid "
                     + "inner join folder on msg_folder.idfolder=folder.idfolder and folder.nombre='inbox'"
                     + "inner join msg_from_to on msg_from_to.msto="+u.getId()
@@ -185,7 +181,7 @@ public ModelAndView login(HttpServletRequest hsr, HttpServletResponse hsr1) thro
                 String text = rs.getString("texto");
                 if(text.length()>20)
                     text = recolocar(text.substring(0, 20));
-                listaMensajes.add(new Mensaje(rs.getInt(1),rs.getString("asunto"),text,
+                listaMensajes.add(new Mensaje(rs.getInt(2),rs.getInt(1),rs.getString("asunto"),text,
                      Integer.parseInt(rs.getString("prio")),rs.getString("msfrom"),rs.getString("fecha"),1));
             }
             ResultSet rs2 = st.executeQuery("select nombre,idfolder from folder "
@@ -252,7 +248,7 @@ public ModelAndView login(HttpServletRequest hsr, HttpServletResponse hsr1) thro
                 String text = rs.getString("texto");
                 if(text.length()>20)
                     text = recolocar(text.substring(0, 20));
-                listaMensajes.add(new Mensaje(rs.getInt(1),rs.getString("asunto"),text,
+                listaMensajes.add(new Mensaje(Integer.parseInt(id),rs.getInt(1),rs.getString("asunto"),text,
                      Integer.parseInt(rs.getString("prio")),"chemamola",rs.getString("fecha"),1));
             }
         }catch(SQLException e){
@@ -260,6 +256,35 @@ public ModelAndView login(HttpServletRequest hsr, HttpServletResponse hsr1) thro
         }
         return new Gson().toJson(listaMensajes);
     }
+    
+    @RequestMapping("/menu/borrarmsg.htm")
+    @ResponseBody
+    public String borrarMsg(@RequestParam("id") String id, HttpServletRequest hsr, HttpServletResponse hsr1) throws SQLException{
+        ArrayList<Mensaje> listaMensajes = new ArrayList<>();
+        DriverManagerDataSource dataSource;    
+        dataSource = (DriverManagerDataSource)this.getBean("comunicacion",hsr.getServletContext());
+        this.cn = dataSource.getConnection();
+        Statement st = this.cn.createStatement();
+        try{
+            ResultSet rs = st.executeQuery("select mensaje.msgid,parentid,fecha,prio,asunto,texto "
+                    + "from mensaje inner join msg_folder on mensaje.msgid=msg_folder.msgid "
+                    + "inner join folder on msg_folder.idfolder=folder.idfolder "
+    //                + "inner join msg_from_to on mensaje.msgid=msg_from_to.msgid"
+                    + "where folder.idfolder="+id);
+            while(rs.next()){
+                String text = rs.getString("texto");
+                if(text.length()>20)
+                    text = recolocar(text.substring(0, 20));
+                listaMensajes.add(new Mensaje(Integer.parseInt(id),rs.getInt(1),rs.getString("asunto"),text,
+                     Integer.parseInt(rs.getString("prio")),"chemamola",rs.getString("fecha"),1));
+            }
+        }catch(SQLException e){
+
+        }
+        return new Gson().toJson(listaMensajes);
+    }
+    
+    
 
     @RequestMapping("/menu/startp.htm")
     public ModelAndView menu2(HttpServletRequest hsr, HttpServletResponse hsr1) throws Exception {

@@ -21,6 +21,7 @@ public class Mensaje {
     private String sender;
     private int parentid;
     private int id;
+    private int folderid;
     private int prio;
     private String fecha;
     private ArrayList<String> destinatarios; 
@@ -88,6 +89,14 @@ public class Mensaje {
     public int getId() {
         return id;
     }
+    
+    public void setFolderid(int folderid) {
+        this.folderid = folderid;
+    }
+
+    public int getFolderid() {
+        return folderid;
+    }
 
     public Mensaje(String asunto, String texto, int prio, String sender) {
         this.asunto = asunto;
@@ -96,21 +105,23 @@ public class Mensaje {
         this.sender = sender;
     }
     
-    public Mensaje(int id,String asunto, String texto, int prio, String sender) {
+    public Mensaje(int folderid,int id,String asunto, String texto, int prio, String sender) {
         this.asunto = asunto;
         this.texto = texto;
         this.prio = prio;
         this.sender = sender;
         this.id = id;
+        this.folderid=folderid;
     }
     
-    public Mensaje(int id,String asunto, String texto, int prio, String sender,String fecha, int parentid) {
+    public Mensaje(int folderid,int id,String asunto, String texto, int prio, String sender,String fecha, int parentid) {
         this.asunto = asunto;
         this.texto = texto;
         this.prio = prio;
         this.sender = sender;
         this.fecha = fecha;
         this.id = id;
+        this.folderid=folderid;
     }
     
     public Mensaje(String asunto, String texto, int prio, String sender,String fecha, int parentid) {
