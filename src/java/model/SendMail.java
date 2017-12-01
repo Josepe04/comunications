@@ -50,10 +50,10 @@ public class SendMail {
                 message.setFrom(new InternetAddress(m.getSender()));
                 // put here if reciepient is not empty, incase the parent doe snot have an email on renweb
 
-                message.setRecipients(Message.RecipientType.TO, InternetAddress.parse("nmohamed@eduwebgroup.com"));//dest
+                message.setRecipients(Message.RecipientType.TO, InternetAddress.parse("itcank@colegioalemannk.org"));//dest
                 message.setSubject(m.getAsunto());
-                message.setContent("<p> Este mensaje ha sido enviado automaticamente por un bot,"
-                        + "si desea responder este mensaje haga click en el enlace que hay al final.</p>"+m.getTexto(), "text/html; charset=utf-8");
+                message.setContent("<p> Este mensaje ha sido enviado por un sistema automático <br>"
+                        + "Por favor no respondas directamente a este email.</p>"+m.getTexto(), "text/html; charset=utf-8");
             //    message.setText(m.getBody());
 
 
