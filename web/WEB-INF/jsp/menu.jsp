@@ -17,17 +17,20 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>JSP Page</title>
         <script>
-            function borrarmsg(id,folderid){
+            function borrarmsg(p,id,folderid){
                 console.log(id);
                 console.log(folderid);
+                var datos=id+" "+folderid; 
+                if(p)
+                    datos='p'+datos;
                 $.ajax({
                     type: "POST",
-                    url: "borrarmsg.htm?id="+id,
-                    data: id ,
+                    url: "borrarmsg.htm?id="+datos,
+                    data:  datos,
                     dataType: 'text' ,           
                     
                     success: function() {
-                        
+                        $('#tr_'+id).remove();
                     },
                     error: function (xhr, ajaxOptions, thrownError) {
                         console.log(xhr.status);
@@ -100,7 +103,7 @@
                                             '</table>');
                                         $("#table_id").append($('<tbody></tbody>'));
                                         $.each(json, function(i) {
-                                            var columna = $('<tr>'+
+                                            var columna = $('<tr id="tr_'+json[i].id+'">'+
                                                     '<td>'+json[i].parentid+'</td>'+
                                                     '<td>'+json[i].asunto+'</td>'+
                                                     '<td>'+json[i].sender+'</td>'+
@@ -178,6 +181,7 @@
                
                 $('#table_folders tbody').on('click', 'tr',function(){
                     var seleccion = table.row( this ).data().id;
+                    var nombre = table.row( this ).data().name;
                     $.ajax({
                         type: "POST",
                         url: "chargefolder.htm?seleccion="+seleccion,
@@ -201,8 +205,11 @@
                                 '</thead>'+
                                 '</table>');
                             $("#table_id").append($('<tbody></tbody>'));
+                            var anadir = true;
+                            if(nombre==='Litter')
+                                anadir = false;
                             $.each(json, function(i) {
-                                var columna = $('<tr id="tr_'+json[i].id+'">'+
+                                var columna = $('<tr id="tr_'+json[i].id +'">'+
                                         '<td>'+json[i].id+'</td>'+
                                         '<td>'+json[i].asunto+'</td>'+
                                         '<td>'+json[i].sender+'</td>'+
@@ -212,7 +219,7 @@
                                                     '<input name="TXTid_lessons_modificar" type="image" src="<c:url value="/recursos/img/btn/btn_Edit.svg"/>" width="30px" data-placement="bottom" title="Reply">'+
                                                '</div>'+
                                                 '<div class="col-xs-6 sinpadding text-center">'+
-                                                    '<input id="borrar_button_'+json[i].id+'" onclick="borrarmsg('+json[i].id+','+json[i].folderid+')" class="delete" name="TXTid_lessons_eliminar" type="image" src="<c:url value="/recursos/img/btn/btn_delete.svg"/>" width="30px" data-placement="bottom" title="Delete">'+
+                                                    '<input id="borrar_button_'+json[i].id+'" onclick="borrarmsg('+anadir+','+json[i].id+','+json[i].folderid+')" class="delete" name="TXTid_lessons_eliminar" type="image" src="<c:url value="/recursos/img/btn/btn_delete.svg"/>" width="30px" data-placement="bottom" title="Delete">'+
                                                 '</div>'+
                                         '</tr>');   
                                 $('#table_id tbody').append(columna);
@@ -284,7 +291,7 @@
                                 </thead>
                                 <tbody>
                                     <c:forEach var="mensaje" items="${lista}" >
-                                        <tr>
+                                        <tr id="tr_${mensaje.id}">
                                             <td>${mensaje.id}</td>
                                             <td>${mensaje.asunto}</td>
                                             <td>${mensaje.sender}</td>
@@ -297,7 +304,7 @@
                                                         </form:form>
                                                     </div>
                                                 <div class="col-xs-6 sinpadding text-center">
-                                                    <input id="borrar_button_${mensaje.id}" name="TXTid_lessons_eliminar" type="image" src="<c:url value="/recursos/img/btn/btn_delete.svg"/>" value="${mensaje.id}" onclick="borrarmsg()" width="30px" data-placement="bottom" title="Delete">
+                                                    <input id="borrar_button_${mensaje.id}" name="TXTid_lessons_eliminar" type="image" src="<c:url value="/recursos/img/btn/btn_delete.svg"/>" value="${mensaje.id}" onclick="borrarmsg(true,${mensaje.id},${mensaje.folderid})" width="30px" data-placement="bottom" title="Delete">
                                                 </div>
                                             </td>
                                         </tr>

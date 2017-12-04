@@ -320,7 +320,7 @@ public class EnviarMensaje {
         if(rs3.next())
             folderList.add(rs3.getString("idfolder"));
         else
-            folderList.add(createFolder(st,""+u.getId(),"sent"));
+            folderList.add(createFolder(st,""+u.getId(),"Sent"));
         
         consulta = "insert into mensaje (parentid,fecha,prio,asunto,texto) values ("
                 +((User)hsr.getSession().getAttribute("user")).getId()+
@@ -340,9 +340,9 @@ public class EnviarMensaje {
         if(parentid!=null)
             m = new Mensaje(asunto,text,Integer.parseInt(parentid),1,"chemamola");
         else
-            m = new Mensaje(asunto,text,0,1,"AppTest");
+            m = new Mensaje(asunto,text,0,1,"chemamola");
         m.setDestinatarios(destinationEmails);
-       SendMail.SendMail(m);
+        //SendMail.SendMail(m);
         return mv;
     }
     

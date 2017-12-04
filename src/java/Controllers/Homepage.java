@@ -83,7 +83,6 @@ public ModelAndView login(HttpServletRequest hsr, HttpServletResponse hsr1) thro
                scgrpid=login.getSecurityGroupID("Communications APP");
                result = login.fromGroup(scgrpid, user.getId());
                if (result == true){
-                   
                    setTipo(user);
                    session.setAttribute("user", user);
                    return mv;
@@ -91,7 +90,6 @@ public ModelAndView login(HttpServletRequest hsr, HttpServletResponse hsr1) thro
                 else{
                     children=login.isparent( user.getId());    
                     if(!children.isEmpty()){
-                        
                         setTipo(user);
                         session.setAttribute("user", user);
                         return mv; 
@@ -173,6 +171,9 @@ public ModelAndView login(HttpServletRequest hsr, HttpServletResponse hsr1) thro
             ResultSet folder2 = st.executeQuery("select * from folder where idpersona="+u.getId()+" and nombre='Sent'");
             if(!folder2.next())
                 EnviarMensaje.createFolder(st,""+u.getId(),"Sent");
+            ResultSet folder3 = st.executeQuery("select * from folder where idpersona="+u.getId()+" and nombre='Litter'");
+            if(!folder3.next())
+                EnviarMensaje.createFolder(st,""+u.getId(),"Litter");
             ResultSet rs = st.executeQuery("select mensaje.msgid,msg_folder.idfolder,parentid,fecha,prio,asunto,texto,msfrom "
                     + "from mensaje inner join msg_folder on mensaje.msgid=msg_folder.msgid "
                     + "inner join folder on msg_folder.idfolder=folder.idfolder and folder.nombre='Inbox'"
@@ -260,29 +261,60 @@ public ModelAndView login(HttpServletRequest hsr, HttpServletResponse hsr1) thro
     
     @RequestMapping("/menu/borrarmsg.htm")
     @ResponseBody
-    public String borrarMsg(@RequestParam("id") String id, HttpServletRequest hsr, HttpServletResponse hsr1) throws SQLException{
-        ArrayList<Mensaje> listaMensajes = new ArrayList<>();
+    public String borrarMsg(@RequestParam("id") String f, HttpServletRequest hsr, HttpServletResponse hsr1) throws SQLException{
+        boolean corte=true,papelera=false;
+        String msgid = "";
+        String folderid = "";
+        String idpersona = "";
+        String idpapelera = "";
+        for(int i = 0;i<f.length();i++){
+            if(f.charAt(i)=='p')
+                papelera = true;
+            else if(corte && f.charAt(i)!=' ')
+                msgid += f.charAt(i);
+            else if(f.charAt(i)==' ')
+                corte = false;
+            else
+                folderid +=f.charAt(i);
+        }
         DriverManagerDataSource dataSource;    
         dataSource = (DriverManagerDataSource)this.getBean("comunicacion",hsr.getServletContext());
         this.cn = dataSource.getConnection();
         Statement st = this.cn.createStatement();
         try{
-            ResultSet rs = st.executeQuery("select mensaje.msgid,parentid,fecha,prio,asunto,texto "
-                    + "from mensaje inner join msg_folder on mensaje.msgid=msg_folder.msgid "
-                    + "inner join folder on msg_folder.idfolder=folder.idfolder "
-    //                + "inner join msg_from_to on mensaje.msgid=msg_from_to.msgid"
-                    + "where folder.idfolder="+id);
-            while(rs.next()){
-                String text = rs.getString("texto");
-                if(text.length()>20)
-                    text = recolocar(text.substring(0, 20));
-                listaMensajes.add(new Mensaje(Integer.parseInt(id),rs.getInt(1),rs.getString("asunto"),text,
-                     Integer.parseInt(rs.getString("prio")),"chemamola",rs.getString("fecha"),1));
-            }
+            st.executeUpdate("delete from msg_folder where msgid="+msgid+" and idfolder="+folderid);
         }catch(SQLException e){
-
+                
         }
-        return new Gson().toJson(listaMensajes);
+        if(papelera){
+            try{
+                ResultSet rs = st.executeQuery("select * from folder where idfolder="+folderid);
+                if(rs.next())
+                    idpersona=rs.getString("idpersona");
+                ResultSet rs2 = st.executeQuery("select * from folder where nombre='Litter' and idpersona="+idpersona);
+                if(rs2.next())
+                    idpapelera=rs2.getString("idfolder");
+                st.executeUpdate("insert into msg_folder values("+msgid+","+idpapelera+")");
+            }catch(SQLException e){
+
+            }
+        }else{
+            try{
+                boolean borrarmsg = false;
+                ResultSet rs = st.executeQuery("select count(*) from msg_folder where msgid="+msgid);
+                if(rs.next()){
+                    int num = rs.getInt(1);
+                    borrarmsg = num<1;
+                }
+                if(borrarmsg){
+                    st.executeUpdate("delete from mensaje where msgid="+msgid);
+                    st.executeUpdate("delete from msg_from_to where msgid="+msgid);
+                }
+            }catch(SQLException e){
+                
+            }
+        }
+        return "";
     }
     
     

@@ -120,11 +120,11 @@ public class EnviarmensajePadre {
           else
               folderList.add(EnviarMensaje.createFolder(st,dest,"Inbox"));
         }
-        ResultSet rs3 = st.executeQuery("select * from folder where idpersona="+u.getId()+" and nombre='sent'");
+        ResultSet rs3 = st.executeQuery("select * from folder where idpersona="+u.getId()+" and nombre='Sent'");
         if(rs3.next())
             folderList.add(rs3.getString("idfolder"));
         else
-            folderList.add(EnviarMensaje.createFolder(st,""+u.getId(),"sent"));
+            folderList.add(EnviarMensaje.createFolder(st,""+u.getId(),"Sent"));
         
         consulta = "insert into mensaje (parentid,fecha,prio,asunto,texto) values ("
                 +((User)hsr.getSession().getAttribute("user")).getId()+
