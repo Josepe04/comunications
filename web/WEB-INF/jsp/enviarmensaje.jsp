@@ -388,7 +388,6 @@
     </head>
 
     <body>
-
         <div class="container">
             <h1 class="text-center">Send Message</h1>
 

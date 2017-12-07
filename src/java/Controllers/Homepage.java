@@ -184,23 +184,13 @@ public ModelAndView login(HttpServletRequest hsr, HttpServletResponse hsr1) thro
                 if(text.length()>20)
                     text = recolocar(text.substring(0, 20));
                 listaMensajes.add(new Mensaje(rs.getInt(2),rs.getInt(1),rs.getString("asunto"),text,
-                     Integer.parseInt(rs.getString("prio")),rs.getString("msfrom"),rs.getString("fecha"),1));
+                     Integer.parseInt(rs.getString("prio")),rs.getString("fromname"),rs.getString("fecha"),1));
             }
             ResultSet rs2 = st.executeQuery("select nombre,idfolder from folder "
                     + "where idpersona = "+u.getId());
             while(rs2.next()){
                 //String asunto, String texto, int prio, String sender,String fecha, int parentid
                 listaFolders.add(new Folder(rs2.getString(2),rs2.getString(1)));
-            }
-            dataSource = (DriverManagerDataSource)this.getBean("dataSourceAH",hsr.getServletContext());
-            this.cn = dataSource.getConnection();
-            st = this.cn.createStatement();
-            for(int i = 0;i<listaMensajes.size();i++){
-               ResultSet rs3 = st.executeQuery("select FirstName from Person where personID ="+listaMensajes.get(i).getSender());
-               rs3.next();
-               String prueba = rs3.getString("FirstName");
-               prueba.charAt(1);
-               listaMensajes.get(i).setSender(rs3.getString("firstname"));
             }
          }catch(SQLException ex){
             System.out.println("Error leyendo Alumnos: " + ex);
@@ -252,6 +242,11 @@ public ModelAndView login(HttpServletRequest hsr, HttpServletResponse hsr1) thro
                     text = recolocar(text.substring(0, 20));
                 listaMensajes.add(new Mensaje(Integer.parseInt(id),rs.getInt(1),rs.getString("asunto"),text,
                      Integer.parseInt(rs.getString("prio")),"AppTest",rs.getString("fecha"),1));
+            }
+            for(Mensaje m:listaMensajes){
+                ResultSet rs2 = st.executeQuery("select * from msg_from_to where msgid="+m.getId());
+                if(rs2.next())
+                    m.setSender(rs2.getString("fromname"));
             }
         }catch(SQLException e){
 
@@ -319,10 +314,33 @@ public ModelAndView login(HttpServletRequest hsr, HttpServletResponse hsr1) thro
     
     
 
-    @RequestMapping("/menu/startp.htm")
-    public ModelAndView menu2(HttpServletRequest hsr, HttpServletResponse hsr1) throws Exception {
-         ModelAndView mv = new ModelAndView("menu");
-         return mv;
+    @RequestMapping("/menu/vermsg.htm")
+    public ModelAndView vermensaje(HttpServletRequest hsr, HttpServletResponse hsr1) throws Exception {
+        Mensaje m=null; 
+        ModelAndView mv = new ModelAndView("vermensaje");
+        String id = hsr.getParameter("ver_button");
+        try{
+            DriverManagerDataSource dataSource;    
+            dataSource = (DriverManagerDataSource)this.getBean("comunicacion",hsr.getServletContext());
+            this.cn = dataSource.getConnection();
+            Statement st = this.cn.createStatement();
+            String sender="";
+            ResultSet rs = st.executeQuery("select * from msg_from_to where msgid="+id);
+            if(rs.next()){
+                sender = rs.getString("msfrom");
+                mv.addObject("fromname",rs.getString("fromname"));
+            }
+            ResultSet rs2 = st.executeQuery("select * from mensaje where msgid="+id);
+            if(rs2.next())
+                //String asunto, String texto, int prio, String sender,String fecha, int parentid
+                m = new Mensaje(rs2.getString("asunto"),rs2.getString("texto"),rs2.getInt("prio"),
+                                sender,rs2.getString("fecha"),rs2.getInt("parentid"));
+                
+        }catch(SQLException e){
+            System.err.println("fallo al cargar");
+        }
+        mv.addObject("mensaje", m);
+        return mv;
     }
 
     @RequestMapping("/menu/enviar.htm")
@@ -332,8 +350,21 @@ public ModelAndView login(HttpServletRequest hsr, HttpServletResponse hsr1) thro
         if(u.getType() == 1){
             mv = new ModelAndView("redirect:/enviarmensajepadre/start.htm");
         }
-        else
-            mv = new ModelAndView("redirect:/enviarmensaje/start.htm");
+        else{
+            mv = new ModelAndView("redirect:/enviarmensaje/start.htm?reply=false");
+        }
+        return mv;
+    }
+    
+    @RequestMapping("/menu/responder.htm")
+    public ModelAndView menuResponder(HttpServletRequest hsr, HttpServletResponse hsr1) throws Exception {
+        ModelAndView mv = null; 
+        User u = (User)(hsr.getSession().getAttribute("user"));
+        mv = new ModelAndView("redirect:/enviarmensajepadre/enviar.htm?reply=false&parentid="
+                + hsr.getParameter("parentid") + "&destinatarios="
+                + hsr.getParameter("destinatarios") + "&asunto="
+                + hsr.getParameter("asunto") + "&NotificationMessage="
+                + hsr.getParameter("NotificationMessage"));
         return mv;
     }
 

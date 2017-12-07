@@ -87,7 +87,6 @@ public class EnviarmensajePadre {
         return mv;
     }
     
-    
     @RequestMapping("/enviarmensajepadre/enviar.htm")
     public ModelAndView enviar( HttpServletRequest hsr, HttpServletResponse hsr1) throws Exception {
         ModelAndView mv = new ModelAndView("redirect:/menu/start.htm");
@@ -102,17 +101,29 @@ public class EnviarmensajePadre {
         User u = (User)hsr.getSession().getAttribute("user");
         ArrayList<String> destinationList = new ArrayList<>();
         ArrayList<String> folderList = new ArrayList<>();
+        
         Calendar t = Calendar.getInstance();
         String time = t.get(Calendar.YEAR)+ "-" +t.get(Calendar.MONTH)+
                     "-"+t.get(Calendar.DAY_OF_MONTH)+" "+t.get(Calendar.HOUR)+":"+
                     t.get(Calendar.MINUTE)+":"+t.get(Calendar.SECOND);
         
-        destinatarios = destinatarios+"]";
-        destinationList = (new Gson()).fromJson(destinatarios, destinationList.getClass());
         DriverManagerDataSource dataSource;
-        dataSource = (DriverManagerDataSource) this.getBean("comunicacion", hsr.getServletContext());
+        dataSource = (DriverManagerDataSource)this.getBean("dataSourceAH",hsr.getServletContext());
         this.cn = dataSource.getConnection();
         Statement st = this.cn.createStatement();
+        String from = ""+((User)hsr.getSession().getAttribute("user")).getId();
+        String fromName = "error not found";
+        ResultSet name = st.executeQuery("select * from Person where PersonID="+from);
+        if(name.next())
+            fromName = name.getString("firstname")+" "+name.getString("LastName");
+        fromName = EnviarMensaje.limpiarFromName(fromName);
+        if(!destinatarios.substring(destinatarios.length()-1).equals("]"))
+            destinatarios = destinatarios+"]";
+        destinationList = (new Gson()).fromJson(destinatarios, destinationList.getClass());
+        
+        dataSource = (DriverManagerDataSource) this.getBean("comunicacion", hsr.getServletContext());
+        this.cn = dataSource.getConnection();
+        st = this.cn.createStatement();
         for(String dest:destinationList){
           ResultSet rs = st.executeQuery("select * from folder where idpersona="+dest+" and nombre='Inbox'");
           if(rs.next())
@@ -136,11 +147,14 @@ public class EnviarmensajePadre {
         for(String f:folderList){
             st.executeUpdate("insert into msg_folder values("+msgid+","+f+")");
         }
-        String from = ""+((User)hsr.getSession().getAttribute("user")).getId();
-        for(String dest:destinationList){
-            st.executeUpdate("insert into msg_from_to values("+msgid+","+from+","+dest+")");
-        }
-        
+        dataSource = (DriverManagerDataSource) this.getBean("dataSourceAH", hsr.getServletContext());
+        this.cn = dataSource.getConnection();
+        st = this.cn.createStatement();
+        for(int i=0;i<destinationList.size();i++){
+            consulta = "insert into msg_from_to values("+msgid+","+from+","
+                    +destinationList.get(i)+",'"+fromName+"')";
+            st.executeUpdate(consulta);
+        }      
         m = new Mensaje(asunto,text,Integer.parseInt(profesorid),1,"chemamola");
         m.setDestinatarios(destinationList);
         //SendMail.SendMail(m);

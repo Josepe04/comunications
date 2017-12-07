@@ -51,7 +51,11 @@ public class EnviarMensaje {
     @RequestMapping("/enviarmensaje/start.htm")
     public ModelAndView start(HttpServletRequest hsr, HttpServletResponse hsr1) throws Exception {
         User u = (User)hsr.getSession().getAttribute("user");
-   
+        boolean p = Boolean.parseBoolean(hsr.getParameter("reply"));
+        String parameter2 = hsr.getParameter("parentid");
+        int p2=-1;
+        if(parameter2!=null)
+            p2 = Integer.parseInt(parameter2);
         ModelAndView mv;
         mv = new ModelAndView("enviarmensaje");
         List <Level> grades = new ArrayList();
@@ -260,6 +264,15 @@ public class EnviarMensaje {
             return null;
     }
     
+    public static String limpiarFromName(String name){
+        if(name.contains("*") && name.indexOf("*") < name.length()-1){
+            name = name.substring(0, name.indexOf("*"))+limpiarFromName(name.substring(name.indexOf("*")+1));
+        }else if(name.indexOf("*") >= name.length()-1){
+            name = name.substring(0,name.length()-1);
+        }
+        return name;
+    }
+    
     @RequestMapping("/enviarmensaje/enviar.htm")
     public ModelAndView enviar( HttpServletRequest hsr, HttpServletResponse hsr1) throws Exception {
         
@@ -286,15 +299,15 @@ public class EnviarMensaje {
         String time = t.get(Calendar.YEAR)+ "-" +t.get(Calendar.MONTH)+
                     "-"+t.get(Calendar.DAY_OF_MONTH)+" "+t.get(Calendar.HOUR)+":"+
                     t.get(Calendar.MINUTE)+":"+t.get(Calendar.SECOND);
-        
-        destinatarios = destinatarios+"]";
+        if(!destinatarios.substring(destinatarios.length()-1).equals("]"))
+            destinatarios = destinatarios+"]";
         destinationListAux = (new Gson()).fromJson(destinatarios, destinationListAux.getClass());
         DriverManagerDataSource dataSource;
         dataSource = (DriverManagerDataSource)this.getBean("dataSourceAH",hsr.getServletContext());
         this.cn = dataSource.getConnection();
         Statement st = this.cn.createStatement();
         for(String dest:destinationListAux){
-            consulta = "select ps.parentid, ps.relationship, p.firstname, p.lastname, ISNULL(p.Email, 0) as mail"
+            consulta = "select ps.parentid, ps.relationship, p.firstname as name, p.lastname as lname, ISNULL(p.Email, 0) as mail"
                     + " from parent_student ps"
                     + " inner join person p"
                     + " on p.personid = ps.parentid" 
@@ -306,6 +319,12 @@ public class EnviarMensaje {
                 destinationEmails.add(rs.getString("mail"));
             }
         }
+        String from = ""+((User)hsr.getSession().getAttribute("user")).getId();
+        String fromName = "error not found";
+        ResultSet name = st.executeQuery("select * from Person where PersonID="+from);
+        if(name.next())
+            fromName = name.getString("firstname")+" "+name.getString("LastName");
+        fromName = limpiarFromName(fromName);
         dataSource = (DriverManagerDataSource) this.getBean("comunicacion", hsr.getServletContext());
         this.cn = dataSource.getConnection();
         st = this.cn.createStatement(); 
@@ -321,10 +340,14 @@ public class EnviarMensaje {
             folderList.add(rs3.getString("idfolder"));
         else
             folderList.add(createFolder(st,""+u.getId(),"Sent"));
-        
-        consulta = "insert into mensaje (parentid,fecha,prio,asunto,texto) values ("
-                +((User)hsr.getSession().getAttribute("user")).getId()+
-                ", '"+time+"' ,1,'"+asunto+"','"+text+"')";
+        if(parentid==null)
+            consulta = "insert into mensaje (parentid,fecha,prio,asunto,texto) values ("
+                    +((User)hsr.getSession().getAttribute("user")).getId()+
+                    ", '"+time+"' ,1,'"+asunto+"','"+text+"')";
+        else
+            consulta = "insert into mensaje (parentid,fecha,prio,asunto,texto) values ("
+                    +((User)hsr.getSession().getAttribute("user")).getId()+
+                    ", '"+time+"' ,"+parentid+",'"+asunto+"','"+text+"')";
         st.executeUpdate(consulta,Statement.RETURN_GENERATED_KEYS);
         ResultSet rs = st.getGeneratedKeys();
         if(rs.next())
@@ -333,9 +356,8 @@ public class EnviarMensaje {
             st.executeUpdate("insert into msg_folder values("+msgid+","+f+")");
         }
         
-        String from = ""+((User)hsr.getSession().getAttribute("user")).getId();
-        for(String dest:destinationList){
-            st.executeUpdate("insert into msg_from_to values("+msgid+","+from+","+dest+")");
+        for(int i = 0;i<destinationList.size();i++){
+            st.executeUpdate("insert into msg_from_to values("+msgid+","+from+","+destinationList.get(i)+",'"+fromName+"')");
         }
         if(parentid!=null)
             m = new Mensaje(asunto,text,Integer.parseInt(parentid),1,"chemamola");
@@ -375,7 +397,6 @@ public class EnviarMensaje {
             System.out.println("Error leyendo Alumnos: " + ex);
             StringWriter errors = new StringWriter();
             ex.printStackTrace(new PrintWriter(errors));
-            //log.error(ex+errors.toString());
         }
        
         return listaAlumnos;

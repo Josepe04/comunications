@@ -110,7 +110,10 @@
                                                     '<td>'+json[i].texto+'</td>'+
                                                     '<td>'+json[i].fecha+'</td>'+
                                                     '<td> <div class="sinpadding text-center">'+
-                                                                '<input name="TXTid_lessons_detalles" type="image" src="<c:url value="/recursos/img/btn/btn_details.svg"/>" width="30px" data-placement="bottom" title="Details">'+
+                                                                '<form:form action="vermsg.htm" method="POST">'+
+                                                                        '<input id="folder" name="folder" type="hidden" value='+json[i].folderid+'>'+
+                                                                        '<input id="ver_button" name="ver_button" type="image" src="<c:url value="/recursos/img/btn/btn_details.svg"/>" value="'+json[i].id+'" width="30px" data-placement="bottom" title="Details">'+
+                                                                '</form:form>'+
                                                             '</div>'+
                                                             '<div class="col-xs-6 sinpadding text-center">'+
                                                                 '<input class="delete" name="TXTid_lessons_eliminar" type="image" src="<c:url value="/recursos/img/btn/btn_delete.svg"/>" width="30px" data-placement="bottom" title="Delete">'+
@@ -216,7 +219,10 @@
                                         '<td>'+json[i].texto+'</td>'+
                                         '<td>'+json[i].fecha+'</td>'+
                                         '<td> <div class="col-xs-6 sinpadding text-center" >'+
-                                                    '<input name="TXTid_lessons_modificar" type="image" src="<c:url value="/recursos/img/btn/btn_Edit.svg"/>" width="30px" data-placement="bottom" title="Reply">'+
+                                                    '<form:form action="vermsg.htm" method="POST">'+
+                                                            '<input id="folder" name="folder" type="hidden" value='+json[i].folderid+'>'+
+                                                            '<input id="ver_button" name="ver_button" type="image" src="<c:url value="/recursos/img/btn/btn_details.svg"/>" value="'+json[i].id+'" width="30px" data-placement="bottom" title="Details">'+
+                                                    '</form:form>'+
                                                '</div>'+
                                                 '<div class="col-xs-6 sinpadding text-center">'+
                                                     '<input id="borrar_button_'+json[i].id+'" onclick="borrarmsg('+anadir+','+json[i].id+','+json[i].folderid+')" class="delete" name="TXTid_lessons_eliminar" type="image" src="<c:url value="/recursos/img/btn/btn_delete.svg"/>" width="30px" data-placement="bottom" title="Delete">'+
@@ -314,6 +320,7 @@
                     <form:form action="enviar.htm" method="POST">
                         <input type="submit" value="create message" class="btn btn-success">
                     </form:form>
+                </div>
                 </div>
             </fieldset>
         </div>

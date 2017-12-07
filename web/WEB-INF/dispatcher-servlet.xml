@@ -23,6 +23,7 @@
     </bean>
     <bean class="Controllers.Homepage" id="home"/> 
     <bean class="Controllers.EnviarMensaje" id="enviar"/> 
+    <bean class="Controllers.VerMensaje" id="ver"/> 
     <bean class="Controllers.EnviarmensajePadre" id="padre"/> 
     <bean class="Controllers.SeleccionHijo" id="seleccionHijo"/> 
     <bean id="urlMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
@@ -39,6 +40,7 @@
                 <prop key="enviarmensaje.htm">enviar</prop>
                 <prop key="enviarmensajepadre.htm">padre</prop>
                 <prop key="seleccionHijo.htm">seleccionHijo</prop>
+                <prop key="vermensaje.htm">ver</prop>
             </props>
         </property>
     </bean>
