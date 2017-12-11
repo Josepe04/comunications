@@ -357,7 +357,9 @@ public class EnviarMensaje {
         }
         
         for(int i = 0;i<destinationList.size();i++){
-            st.executeUpdate("insert into msg_from_to values("+msgid+","+from+","+destinationList.get(i)+",'"+fromName+"')");
+            consulta = "insert into msg_from_to(msgid,msfrom,msto,fromname) values("+msgid+","+from+","
+                    +destinationList.get(i)+",'"+fromName+"')"; 
+            st.executeUpdate(consulta);
         }
         if(parentid!=null)
             m = new Mensaje(asunto,text,Integer.parseInt(parentid),1,"chemamola");

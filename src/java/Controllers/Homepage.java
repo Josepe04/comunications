@@ -174,7 +174,7 @@ public ModelAndView login(HttpServletRequest hsr, HttpServletResponse hsr1) thro
             ResultSet folder3 = st.executeQuery("select * from folder where idpersona="+u.getId()+" and nombre='Litter'");
             if(!folder3.next())
                 EnviarMensaje.createFolder(st,""+u.getId(),"Litter");
-            ResultSet rs = st.executeQuery("select mensaje.msgid,msg_folder.idfolder,parentid,fecha,prio,asunto,texto,msfrom "
+            ResultSet rs = st.executeQuery("select mensaje.msgid,msg_folder.idfolder,parentid,fecha,prio,asunto,texto,msfrom,fromname "
                     + "from mensaje inner join msg_folder on mensaje.msgid=msg_folder.msgid "
                     + "inner join folder on msg_folder.idfolder=folder.idfolder and folder.nombre='Inbox'"
                     + "inner join msg_from_to on msg_from_to.msto="+u.getId()
@@ -189,7 +189,6 @@ public ModelAndView login(HttpServletRequest hsr, HttpServletResponse hsr1) thro
             ResultSet rs2 = st.executeQuery("select nombre,idfolder from folder "
                     + "where idpersona = "+u.getId());
             while(rs2.next()){
-                //String asunto, String texto, int prio, String sender,String fecha, int parentid
                 listaFolders.add(new Folder(rs2.getString(2),rs2.getString(1)));
             }
          }catch(SQLException ex){
@@ -234,7 +233,6 @@ public ModelAndView login(HttpServletRequest hsr, HttpServletResponse hsr1) thro
             ResultSet rs = st.executeQuery("select mensaje.msgid,parentid,fecha,prio,asunto,texto "
                     + "from mensaje inner join msg_folder on mensaje.msgid=msg_folder.msgid "
                     + "inner join folder on msg_folder.idfolder=folder.idfolder "
-    //                + "inner join msg_from_to on mensaje.msgid=msg_from_to.msgid"
                     + "where folder.idfolder="+id);
             while(rs.next()){
                 String text = rs.getString("texto");
@@ -312,8 +310,6 @@ public ModelAndView login(HttpServletRequest hsr, HttpServletResponse hsr1) thro
         return "";
     }
     
-    
-
     @RequestMapping("/menu/vermsg.htm")
     public ModelAndView vermensaje(HttpServletRequest hsr, HttpServletResponse hsr1) throws Exception {
         Mensaje m=null; 
@@ -343,6 +339,39 @@ public ModelAndView login(HttpServletRequest hsr, HttpServletResponse hsr1) thro
         return mv;
     }
 
+    @RequestMapping("/menu/recover.htm")
+    public String recuperar(@RequestParam("id") String f,HttpServletRequest hsr, HttpServletResponse hsr1) throws Exception {
+        boolean corte=true;
+        String id = "";
+        String idfolder = "";
+        for(int i = 0;i<f.length();i++){
+            if(corte && f.charAt(i)!=' ')
+                id += f.charAt(i);
+            else if(f.charAt(i)==' ')
+                corte = false;
+            else
+                idfolder +=f.charAt(i);
+        }
+        String idfolderInbox = "";
+        User u = (User)hsr.getSession().getAttribute("user");
+        try{
+            DriverManagerDataSource dataSource;    
+            dataSource = (DriverManagerDataSource)this.getBean("comunicacion",hsr.getServletContext());
+            this.cn = dataSource.getConnection();
+            Statement st = this.cn.createStatement();
+            st.execute("delete from msg_folder where msgid="+id+" and idfolder="+idfolder);
+            ResultSet rs = st.executeQuery("select * from folder where idpersona="+u.getId()+" and "
+                    + "nombre='Inbox'");
+            if(rs.next())
+                idfolderInbox = rs.getString("idfolder");
+            st.execute("insert into msg_folder values("+id+","+idfolderInbox+")");
+            return "";
+        }catch(SQLException e){
+            System.err.println("fallo en recover");
+        }
+        return "";
+    }
+    
     @RequestMapping("/menu/enviar.htm")
     public ModelAndView menuEnviar(HttpServletRequest hsr, HttpServletResponse hsr1) throws Exception {
         ModelAndView mv = null; 

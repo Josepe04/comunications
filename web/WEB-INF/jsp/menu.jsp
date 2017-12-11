@@ -39,6 +39,27 @@
                     }
                 });
             }
+            function recovermsg(id,folderid){
+                console.log(id);
+                console.log(folderid);
+                var datos=id+" "+folderid; 
+                $.ajax({
+                    type: "POST",
+                    url: "recover.htm?id="+datos,
+                    data:  datos,
+                    dataType: 'text' ,           
+                    
+                    success: function() {
+                        $('#tr_'+id).remove();
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        console.log(xhr.status);
+                        console.log(xhr.responseText);
+                        console.log(thrownError);
+                    }
+                });
+            }
+            
             function createFolder(nombre){
                 $.ajax({
                         type: "POST",
@@ -212,23 +233,26 @@
                             if(nombre==='Litter')
                                 anadir = false;
                             $.each(json, function(i) {
-                                var columna = $('<tr id="tr_'+json[i].id +'">'+
+                                var columna = '<tr id="tr_'+json[i].id +'">'+
                                         '<td>'+json[i].id+'</td>'+
                                         '<td>'+json[i].asunto+'</td>'+
                                         '<td>'+json[i].sender+'</td>'+
                                         '<td>'+json[i].texto+'</td>'+
                                         '<td>'+json[i].fecha+'</td>'+
-                                        '<td> <div class="col-xs-6 sinpadding text-center" >'+
-                                                    '<form:form action="vermsg.htm" method="POST">'+
-                                                            '<input id="folder" name="folder" type="hidden" value='+json[i].folderid+'>'+
-                                                            '<input id="ver_button" name="ver_button" type="image" src="<c:url value="/recursos/img/btn/btn_details.svg"/>" value="'+json[i].id+'" width="30px" data-placement="bottom" title="Details">'+
-                                                    '</form:form>'+
-                                               '</div>'+
+                                        '<td> <div class="col-xs-6 sinpadding text-center" >';
+                                if(nombre === 'Litter')
+                                    columna+= '<input id="recover_button_'+json[i].id+'" onclick="recovermsg('+json[i].id+','+json[i].folderid+')" type="image" src="<c:url value="/recursos/img/btn/recover.png"/>" value="'+json[i].id+'" width="30px" data-placement="bottom" title="Recover">';
+                                if(nombre!=='Sent' && nombre!=='Litter')
+                                    columna+='<form:form action="vermsg.htm" method="POST">'+
+                                                                '<input id="folder" name="folder" type="hidden" value='+json[i].folderid+'>'+
+                                                                '<input id="ver_button" name="ver_button" type="image" src="<c:url value="/recursos/img/btn/btn_details.svg"/>" value="'+json[i].id+'" width="30px" data-placement="bottom" title="Details">'+
+                                                        '</form:form>';
+                                columna+='</div>'+
                                                 '<div class="col-xs-6 sinpadding text-center">'+
                                                     '<input id="borrar_button_'+json[i].id+'" onclick="borrarmsg('+anadir+','+json[i].id+','+json[i].folderid+')" class="delete" name="TXTid_lessons_eliminar" type="image" src="<c:url value="/recursos/img/btn/btn_delete.svg"/>" width="30px" data-placement="bottom" title="Delete">'+
                                                 '</div>'+
-                                        '</tr>');   
-                                $('#table_id tbody').append(columna);
+                                        '</tr>';   
+                                $('#table_id tbody').append($(columna));
                             });
                             $('#table_id').DataTable({
                                 "aLengthMenu": [[5, 10, 20, -1], [5, 10, 20, "All"]],

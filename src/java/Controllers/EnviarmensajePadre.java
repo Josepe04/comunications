@@ -147,13 +147,10 @@ public class EnviarmensajePadre {
         for(String f:folderList){
             st.executeUpdate("insert into msg_folder values("+msgid+","+f+")");
         }
-        dataSource = (DriverManagerDataSource) this.getBean("dataSourceAH", hsr.getServletContext());
-        this.cn = dataSource.getConnection();
-        st = this.cn.createStatement();
         for(int i=0;i<destinationList.size();i++){
-            consulta = "insert into msg_from_to values("+msgid+","+from+","
-                    +destinationList.get(i)+",'"+fromName+"')";
-            st.executeUpdate(consulta);
+            consulta = "insert into msg_from_to(msgid,msfrom,msto,fromname) values("+msgid+","+from+","
+                    +destinationList.get(i)+",'"+fromName+"')"; 
+            st.execute(consulta);
         }      
         m = new Mensaje(asunto,text,Integer.parseInt(profesorid),1,"chemamola");
         m.setDestinatarios(destinationList);

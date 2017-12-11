@@ -25,6 +25,10 @@ public class Mensaje {
     private int prio;
     private String fecha;
     private ArrayList<String> destinatarios; 
+
+    public Mensaje(int aInt, int aInt0, String string, String text, int parseInt, String string0, int i) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
     
     public void setFecha(String fecha) {
         this.fecha = fecha;
