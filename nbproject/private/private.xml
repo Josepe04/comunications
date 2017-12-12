@@ -2,12 +2,6 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group>
-            <file>file:/C:/Users/Norhan/Documents/NetBeansProjects/Comunication/web/WEB-INF/jsp/vermensaje.jsp</file>
-            <file>file:/C:/Users/Norhan/Documents/NetBeansProjects/Comunication/src/java/Controllers/EnviarmensajePadre.java</file>
-            <file>file:/C:/Users/Norhan/Documents/NetBeansProjects/Comunication/src/java/model/Mensaje.java</file>
-            <file>file:/C:/Users/Norhan/Documents/NetBeansProjects/Comunication/src/java/Controllers/EnviarMensaje.java</file>
-            <file>file:/C:/Users/Norhan/Documents/NetBeansProjects/Comunication/src/java/Controllers/Homepage.java</file>
-        </group>
+        <group/>
     </open-files>
 </project-private>

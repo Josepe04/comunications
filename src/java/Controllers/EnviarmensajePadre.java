@@ -37,27 +37,13 @@ import org.springframework.web.servlet.ModelAndView;
 @Controller
 public class EnviarmensajePadre {
     
-     Connection cn;
-    //static Logger log = Logger.getLogger(ProgressbyStudent.class.getName());
-    private ServletContext servlet;
-    
-    private Object getBean(String nombrebean, ServletContext servlet)
-    {
-        ApplicationContext contexto = WebApplicationContextUtils.getRequiredWebApplicationContext(servlet);
-        Object beanobject = contexto.getBean(nombrebean);
-        return beanobject;
-    }
-    
-    
-    
     @RequestMapping("/enviarmensajepadre/seleccionchild.htm")
     @ResponseBody
     public String seleccionado(@RequestParam("seleccion") String id,HttpServletRequest hsr, HttpServletResponse hsr1) throws SQLException{
         ArrayList<Profesor> profesores = new ArrayList<>(); 
         if(id.equals("staff")){
-            Statement st = this.cn.createStatement();
             String consulta = "select StaffID, FirstName, LastName, Email, Occupation from Staff where Faculty=0";
-            ResultSet rs = st.executeQuery(consulta);
+            ResultSet rs = Homepage.st2.executeQuery(consulta);
             while(rs.next()){
                 //String firstName, String lastName, int id, String email,String asig
                 profesores.add(new Profesor(rs.getString("FirstName"),rs.getString("LastName"),
@@ -75,10 +61,6 @@ public class EnviarmensajePadre {
         ModelAndView mv;
         mv = new ModelAndView("enviarmensajepadre");
         try {
-            DriverManagerDataSource dataSource;
-            dataSource = (DriverManagerDataSource) this.getBean("dataSourceAH", hsr.getServletContext());
-            this.cn = dataSource.getConnection();
-            Statement st = this.cn.createStatement();
             mv.addObject("hijos", getChildren(us));
         } catch (SQLException ex) {
             StringWriter errors = new StringWriter();
@@ -107,13 +89,9 @@ public class EnviarmensajePadre {
                     "-"+t.get(Calendar.DAY_OF_MONTH)+" "+t.get(Calendar.HOUR)+":"+
                     t.get(Calendar.MINUTE)+":"+t.get(Calendar.SECOND);
         
-        DriverManagerDataSource dataSource;
-        dataSource = (DriverManagerDataSource)this.getBean("dataSourceAH",hsr.getServletContext());
-        this.cn = dataSource.getConnection();
-        Statement st = this.cn.createStatement();
         String from = ""+((User)hsr.getSession().getAttribute("user")).getId();
         String fromName = "error not found";
-        ResultSet name = st.executeQuery("select * from Person where PersonID="+from);
+        ResultSet name = Homepage.st2.executeQuery("select * from Person where PersonID="+from);
         if(name.next())
             fromName = name.getString("firstname")+" "+name.getString("LastName");
         fromName = EnviarMensaje.limpiarFromName(fromName);
@@ -121,38 +99,38 @@ public class EnviarmensajePadre {
             destinatarios = destinatarios+"]";
         destinationList = (new Gson()).fromJson(destinatarios, destinationList.getClass());
         
-        dataSource = (DriverManagerDataSource) this.getBean("comunicacion", hsr.getServletContext());
-        this.cn = dataSource.getConnection();
-        st = this.cn.createStatement();
         for(String dest:destinationList){
-          ResultSet rs = st.executeQuery("select * from folder where idpersona="+dest+" and nombre='Inbox'");
+          ResultSet rs = Homepage.st.executeQuery("select * from folder where idpersona="+dest+" and nombre='Inbox'");
           if(rs.next())
               folderList.add(rs.getString("idfolder"));
           else
-              folderList.add(EnviarMensaje.createFolder(st,dest,"Inbox"));
+              folderList.add(EnviarMensaje.createFolder(Homepage.st,dest,"Inbox"));
         }
-        ResultSet rs3 = st.executeQuery("select * from folder where idpersona="+u.getId()+" and nombre='Sent'");
+        ResultSet rs3 = Homepage.st.executeQuery("select * from folder where idpersona="+u.getId()+" and nombre='Sent'");
         if(rs3.next())
             folderList.add(rs3.getString("idfolder"));
         else
-            folderList.add(EnviarMensaje.createFolder(st,""+u.getId(),"Sent"));
+            folderList.add(EnviarMensaje.createFolder(Homepage.st,""+u.getId(),"Sent"));
         
         consulta = "insert into mensaje (parentid,fecha,prio,asunto,texto) values ("
                 +((User)hsr.getSession().getAttribute("user")).getId()+
                 ", '"+time+"' ,1,'"+asunto+"','"+text+"')";
-        st.executeUpdate(consulta,Statement.RETURN_GENERATED_KEYS);
-        ResultSet rs = st.getGeneratedKeys();
+        Homepage.st.executeUpdate(consulta,Statement.RETURN_GENERATED_KEYS);
+        ResultSet rs = Homepage.st.getGeneratedKeys();
         if(rs.next())
             msgid = ""+rs.getInt(1);
         for(String f:folderList){
-            st.executeUpdate("insert into msg_folder values("+msgid+","+f+")");
+            Homepage.st.executeUpdate("insert into msg_folder values("+msgid+","+f+")");
         }
         for(int i=0;i<destinationList.size();i++){
             consulta = "insert into msg_from_to(msgid,msfrom,msto,fromname) values("+msgid+","+from+","
                     +destinationList.get(i)+",'"+fromName+"')"; 
-            st.execute(consulta);
-        }      
-        m = new Mensaje(asunto,text,Integer.parseInt(profesorid),1,"chemamola");
+            Homepage.st.execute(consulta);
+        }
+        if(profesorid!=null)
+            m = new Mensaje(asunto,text,Integer.parseInt(profesorid),1,"chemamola");
+        else
+            m = new Mensaje(asunto,text,0,1,"chemamola");
         m.setDestinatarios(destinationList);
         //SendMail.SendMail(m);
         return mv;
@@ -164,12 +142,11 @@ public class EnviarmensajePadre {
         try {
             ArrayList<Integer> staffids = new ArrayList<>(); 
             ArrayList<String> classids = new ArrayList<>(); 
-            Statement st = this.cn.createStatement();
             String consulta = "select StaffID, Classes.ClassID , Courses.Title from Roster inner join Classes\n" +
                                 "on Roster.ClassID = Classes.ClassID\n" +
                                 "inner join Courses on  Classes.CourseID = Courses.CourseID"+          
                                 "  where Roster.StudentID = "+id;
-            ResultSet rs = st.executeQuery(consulta);
+            ResultSet rs = Homepage.st2.executeQuery(consulta);
             if(rs.next()){
                 staffids.add(rs.getInt("StaffID"));
                 classids.add(rs.getString("Title"));
@@ -177,7 +154,7 @@ public class EnviarmensajePadre {
            
             for(Integer i : staffids){
                 consulta = "select FirstName,LastName,Email from Person where PersonID = "+i;
-                ResultSet rs2 = st.executeQuery(consulta);
+                ResultSet rs2 = Homepage.st2.executeQuery(consulta);
                 if(rs2.next())
                     listaProfesores.add(new Profesor(rs2.getString("FirstName"),rs2.getString("LastName"),i,rs2.getString("Email")));
             }
@@ -202,8 +179,6 @@ public class EnviarmensajePadre {
         int id = u.getId();
         ArrayList<Hijo> listaAlumnos = new ArrayList<>();
         try {
-
-            Statement st = this.cn.createStatement();
             String consulta = "SELECT Person.FirstName, Person.LastName, Person_Student.SchoolCode, Person_Student.StudentID, Parent_Student.Custody, Parent_Student.Correspondence,"
                     + " Parent_Student.PWBlock, Parent_Student.ParentID"
                     + " FROM  Parent_Student INNER JOIN"
@@ -211,7 +186,7 @@ public class EnviarmensajePadre {
                     + " Person ON Person_Student.StudentID = Person.PersonID"
                     + " WHERE ((Parent_Student.Correspondence = 1) or (Parent_Student.PWBlock <> 1) ) AND"
                     + " (Parent_Student.ParentID = "+u.getId()+")";
-            ResultSet rs = st.executeQuery(consulta);
+            ResultSet rs = Homepage.st2.executeQuery(consulta);
             while (rs.next()) {
                 listaAlumnos.add(new Hijo(rs.getInt("StudentID"),rs.getString("FirstName")
                         ,rs.getString("LastName")));

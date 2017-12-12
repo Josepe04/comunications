@@ -41,69 +41,77 @@ import org.springframework.web.servlet.mvc.multiaction.MultiActionController;
 
 @Controller
 public class Homepage extends MultiActionController  {
-   Connection cn;
-    private Object getBean(String nombrebean, ServletContext servlet)
-{
+    public static Connection cn;
+    public static Connection cn2;
+    public static Statement st;
+    public static Statement st2;
+    
+    private Object getBean(String nombrebean, ServletContext servlet){
         ApplicationContext contexto = WebApplicationContextUtils.getRequiredWebApplicationContext(servlet);
         Object beanobject = contexto.getBean(nombrebean);
         return beanobject;
-}
+    }
+    
     @RequestMapping
     public ModelAndView inicio(HttpServletRequest hsr, HttpServletResponse hsr1) throws Exception {
-    
+        //connection to comunication
+        DriverManagerDataSource dataSource = (DriverManagerDataSource) this.getBean("comunicacion", hsr.getServletContext());
+        this.cn = dataSource.getConnection();
+        st = this.cn.createStatement(); 
+        //connection to datasourceAH
+        DriverManagerDataSource dataSource2 = (DriverManagerDataSource)this.getBean("dataSourceAH",hsr.getServletContext());
+        this.cn2 = dataSource2.getConnection();
+        this.st2 = cn2.createStatement();
         return new ModelAndView("userform");
     }
     
-  @RequestMapping("/login.htm")
-public ModelAndView login(HttpServletRequest hsr, HttpServletResponse hsr1) throws Exception {
-        DriverManagerDataSource dataSource;
-        dataSource = (DriverManagerDataSource) this.getBean("dataSourceAH", hsr.getServletContext());
-        this.cn = dataSource.getConnection();
-        HttpSession session = hsr.getSession();
-        User user = new User();
-        int scgrpid = 0;
-        boolean result = false;
-        ArrayList<Students> children ;
-        LoginVerification login = new LoginVerification();
-        ModelAndView mv = new ModelAndView("redirect:/menu/start.htm");
-        String txtusuario = hsr.getParameter("txtusuario");
-        if(txtusuario==null){
-           return new ModelAndView("userform");
-        }else{
-           user = login.consultUserDB(hsr.getParameter("txtusuario"), hsr.getParameter("txtpassword"));
-           // if the username or password incorrect
-           if(user.getId()==0){
-                mv = new ModelAndView("userform");
-                String message = "Username or password incorrect";
-                mv.addObject("message", message);
-                return mv;
-            }
-            //if the user is not part of the group
-            else{
-               scgrpid=login.getSecurityGroupID("Communications APP");
-               result = login.fromGroup(scgrpid, user.getId());
-               if (result == true){
-                   setTipo(user);
-                   session.setAttribute("user", user);
-                   return mv;
-               }
+    @RequestMapping("/login.htm")
+    public ModelAndView login(HttpServletRequest hsr, HttpServletResponse hsr1) throws Exception {
+            HttpSession session = hsr.getSession();
+            User user = new User();
+            int scgrpid = 0;
+            boolean result = false;
+            ArrayList<Students> children ;
+            LoginVerification login = new LoginVerification();
+            ModelAndView mv = new ModelAndView("redirect:/menu/start.htm");
+            String txtusuario = hsr.getParameter("txtusuario");
+            if(txtusuario==null){
+               return new ModelAndView("userform");
+            }else{
+               user = login.consultUserDB(hsr.getParameter("txtusuario"), hsr.getParameter("txtpassword"));
+               // if the username or password incorrect
+               if(user.getId()==0){
+                    mv = new ModelAndView("userform");
+                    String message = "Username or password incorrect";
+                    mv.addObject("message", message);
+                    return mv;
+                }
+                //if the user is not part of the group
                 else{
-                    children=login.isparent( user.getId());    
-                    if(!children.isEmpty()){
-                        setTipo(user);
-                        session.setAttribute("user", user);
-                        return mv; 
-                    }
-                    else{
-                       mv = new ModelAndView("userform");
-                       String message = "Username or Password incorrect";
-                       mv.addObject("message", message);
+                   scgrpid=login.getSecurityGroupID("Communications APP");
+                   result = login.fromGroup(scgrpid, user.getId());
+                   if (result == true){
+                       setTipo(user);
+                       session.setAttribute("user", user);
                        return mv;
+                   }
+                    else{
+                        children=login.isparent( user.getId());    
+                        if(!children.isEmpty()){
+                            setTipo(user);
+                            session.setAttribute("user", user);
+                            return mv; 
+                        }
+                        else{
+                           mv = new ModelAndView("userform");
+                           String message = "Username or Password incorrect";
+                           mv.addObject("message", message);
+                           return mv;
+                        }
                     }
                 }
-            }
-         }
-}
+             }
+    }
 
         //user.setId(10333);
         //user.setId(10366);
@@ -111,14 +119,13 @@ public ModelAndView login(HttpServletRequest hsr, HttpServletResponse hsr1) thro
     public void setTipo(User user) {
         boolean padre = false, profesor = false;
         try {
-            Statement st = this.cn.createStatement();
             String consulta = "SELECT count(*) AS cuenta FROM Staff where Faculty = 1 and StaffID =" + user.getId();
-            ResultSet rs = st.executeQuery(consulta);
+            ResultSet rs = st2.executeQuery(consulta);
             if (rs.next()) {
                 profesor = rs.getInt("cuenta") > 0;
             }
             consulta = "SELECT count(*) AS cuenta FROM Parent_Student where ParentID =" + user.getId();
-            ResultSet rs2 = st.executeQuery(consulta);
+            ResultSet rs2 = st2.executeQuery(consulta);
             if (rs2.next()) {
                 padre = rs2.getInt("cuenta") > 0;
             }
@@ -160,10 +167,6 @@ public ModelAndView login(HttpServletRequest hsr, HttpServletResponse hsr1) thro
          ArrayList<Folder> listaFolders = new ArrayList<>();
          ModelAndView mv = new ModelAndView("menu");
          User u = (User)hsr.getSession().getAttribute("user");
-         DriverManagerDataSource dataSource;    
-         dataSource = (DriverManagerDataSource)this.getBean("comunicacion",hsr.getServletContext());
-         this.cn = dataSource.getConnection();
-         Statement st = this.cn.createStatement();
          try{
             ResultSet folder = st.executeQuery("select * from folder where idpersona="+u.getId()+" and nombre='Inbox'");
             if(!folder.next())
@@ -206,10 +209,6 @@ public ModelAndView login(HttpServletRequest hsr, HttpServletResponse hsr1) thro
     @ResponseBody
     public String createFolder(@RequestParam("nombre") String nombre,HttpServletRequest hsr, HttpServletResponse hsr1) throws Exception {
         ArrayList<Folder> listaFolders = new ArrayList();
-        DriverManagerDataSource dataSource;    
-        dataSource = (DriverManagerDataSource)this.getBean("comunicacion",hsr.getServletContext());
-        this.cn = dataSource.getConnection();
-        Statement st = this.cn.createStatement();
         User u = (User)hsr.getSession().getAttribute("user");
         EnviarMensaje.createFolder(st,""+u.getId(), nombre);
         ResultSet rs2 = st.executeQuery("select nombre,idfolder from folder "
@@ -225,10 +224,6 @@ public ModelAndView login(HttpServletRequest hsr, HttpServletResponse hsr1) thro
     @ResponseBody
     public String chargeFolder(@RequestParam("seleccion") String id, HttpServletRequest hsr, HttpServletResponse hsr1) throws SQLException{
         ArrayList<Mensaje> listaMensajes = new ArrayList<>();
-        DriverManagerDataSource dataSource;    
-        dataSource = (DriverManagerDataSource)this.getBean("comunicacion",hsr.getServletContext());
-        this.cn = dataSource.getConnection();
-        Statement st = this.cn.createStatement();
         try{
             ResultSet rs = st.executeQuery("select mensaje.msgid,parentid,fecha,prio,asunto,texto "
                     + "from mensaje inner join msg_folder on mensaje.msgid=msg_folder.msgid "
@@ -270,10 +265,7 @@ public ModelAndView login(HttpServletRequest hsr, HttpServletResponse hsr1) thro
             else
                 folderid +=f.charAt(i);
         }
-        DriverManagerDataSource dataSource;    
-        dataSource = (DriverManagerDataSource)this.getBean("comunicacion",hsr.getServletContext());
-        this.cn = dataSource.getConnection();
-        Statement st = this.cn.createStatement();
+        
         try{
             st.executeUpdate("delete from msg_folder where msgid="+msgid+" and idfolder="+folderid);
         }catch(SQLException e){
@@ -316,10 +308,6 @@ public ModelAndView login(HttpServletRequest hsr, HttpServletResponse hsr1) thro
         ModelAndView mv = new ModelAndView("vermensaje");
         String id = hsr.getParameter("ver_button");
         try{
-            DriverManagerDataSource dataSource;    
-            dataSource = (DriverManagerDataSource)this.getBean("comunicacion",hsr.getServletContext());
-            this.cn = dataSource.getConnection();
-            Statement st = this.cn.createStatement();
             String sender="";
             ResultSet rs = st.executeQuery("select * from msg_from_to where msgid="+id);
             if(rs.next()){
@@ -355,10 +343,6 @@ public ModelAndView login(HttpServletRequest hsr, HttpServletResponse hsr1) thro
         String idfolderInbox = "";
         User u = (User)hsr.getSession().getAttribute("user");
         try{
-            DriverManagerDataSource dataSource;    
-            dataSource = (DriverManagerDataSource)this.getBean("comunicacion",hsr.getServletContext());
-            this.cn = dataSource.getConnection();
-            Statement st = this.cn.createStatement();
             st.execute("delete from msg_folder where msgid="+id+" and idfolder="+idfolder);
             ResultSet rs = st.executeQuery("select * from folder where idpersona="+u.getId()+" and "
                     + "nombre='Inbox'");

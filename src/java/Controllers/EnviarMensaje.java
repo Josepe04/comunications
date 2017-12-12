@@ -9,7 +9,6 @@ import model.Level;
 import model.Students;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -21,10 +20,8 @@ import javax.servlet.http.HttpServletResponse;
 import model.Mensaje;
 import com.google.gson.Gson;
 import java.util.Calendar;
-import model.SendMail;
 import model.User;
 import org.springframework.context.ApplicationContext;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -38,11 +35,10 @@ import org.springframework.web.servlet.ModelAndView;
  */
 @Controller
 public class EnviarMensaje {
-    Connection cn;
     //static Logger log = Logger.getLogger(ProgressbyStudent.class.getName());
     private ServletContext servlet;
     
-    private Object getBean(String nombrebean, ServletContext servlet)
+    private static Object getBean(String nombrebean, ServletContext servlet)
     {
         ApplicationContext contexto = WebApplicationContextUtils.getRequiredWebApplicationContext(servlet);
         Object beanobject = contexto.getBean(nombrebean);
@@ -59,19 +55,18 @@ public class EnviarMensaje {
         ModelAndView mv;
         mv = new ModelAndView("enviarmensaje");
         List <Level> grades = new ArrayList();
+        
+        
+        
         try{
-            DriverManagerDataSource dataSource;
-            dataSource = (DriverManagerDataSource)this.getBean("dataSourceAH",hsr.getServletContext());
-            this.cn = dataSource.getConnection();
             mv.addObject("listaAlumnos", this.getStudents());
-            Statement st = this.cn.createStatement();
             ResultSet rs;
             if(u.getId()==2 || u.getId()==0)   
-                rs = st.executeQuery("SELECT * FROM Classes where (StaffID="+u.getId()
+                rs = Homepage.st2.executeQuery("SELECT * FROM Classes where (StaffID="+u.getId()
                         +" or AltStaffID="+u.getId()+" or AidID="+u.getId()
                         + ")");
             else
-                rs = st.executeQuery("SELECT * FROM Classes");
+                rs = Homepage.st2.executeQuery("SELECT * FROM Classes");
             Level l = new Level();
             l.setName("Select class");
             grades.add(l);
@@ -89,6 +84,7 @@ public class EnviarMensaje {
                 ex.printStackTrace(new PrintWriter(errors));
                 //log.error(ex+errors.toString());
         }
+        
         mv.addObject("gradelevels", grades);
         return mv;
     }
@@ -98,13 +94,9 @@ public class EnviarMensaje {
     public String filterSelect (@RequestParam("seleccion") String id,HttpServletRequest hsr, HttpServletResponse hsr1) throws Exception {
         List <Level> grades = new ArrayList();
         User u = (User)hsr.getSession().getAttribute("user");
-        DriverManagerDataSource dataSource;
-        dataSource = (DriverManagerDataSource)this.getBean("dataSourceAH",hsr.getServletContext());
-        this.cn = dataSource.getConnection();
-        Statement st = this.cn.createStatement();
         if(id.equals("0"))
            try{
-            ResultSet rs = st.executeQuery("SELECT GradeLevel,GradeLevelID FROM GradeLevels");
+            ResultSet rs = Homepage.st2.executeQuery("SELECT GradeLevel,GradeLevelID FROM GradeLevels");
             Level l = new Level();
             l.setName("Select level");
             grades.add(l);
@@ -126,11 +118,11 @@ public class EnviarMensaje {
            try{
             ResultSet rs;
             if(u.getId()==2 || u.getId()==0)   
-                rs = st.executeQuery("SELECT * FROM Classes where (StaffID="+u.getId()
+                rs = Homepage.st2.executeQuery("SELECT * FROM Classes where (StaffID="+u.getId()
                         +" or AltStaffID="+u.getId()+" or AidID="+u.getId()
                         + ")");
             else
-                rs = st.executeQuery("SELECT * FROM Classes");
+                rs = Homepage.st2.executeQuery("SELECT * FROM Classes");
             Level l = new Level();
             l.setName("Select class");
             grades.add(l);
@@ -154,16 +146,11 @@ public class EnviarMensaje {
     @RequestMapping("/enviarmensaje/studentclassLevel.htm")
     @ResponseBody
     public String studentclassLevel(HttpServletRequest hsr, HttpServletResponse hsr1) throws Exception {
-
-        DriverManagerDataSource dataSource;
-        dataSource = (DriverManagerDataSource)this.getBean("dataSourceAH",hsr.getServletContext());
-        this.cn = dataSource.getConnection();
         List <Students> studentsgrades = new ArrayList();
         String[] levelid = hsr.getParameterValues("nivel");
         String test = hsr.getParameter("levelStudent");
         studentsgrades =this.getStudentsclass(levelid[0]);
         String data=new Gson().toJson(studentsgrades);
-        
         return data;
     }
     
@@ -171,9 +158,7 @@ public class EnviarMensaje {
     {         
         ArrayList<Students> listaAlumnos = new ArrayList<>();
         try {
-            
-             Statement st = this.cn.createStatement();
-             ResultSet rs= st.executeQuery("select * from Roster inner join Students on "
+             ResultSet rs= Homepage.st2.executeQuery("select * from Roster inner join Students on "
                      + "Roster.StudentID = Students.StudentID where Roster.ClassID ="+gradeid);
             while (rs.next())
             {
@@ -200,15 +185,20 @@ public class EnviarMensaje {
     @ResponseBody
     public String studentlistLevel(HttpServletRequest hsr, HttpServletResponse hsr1) throws Exception {
 
-        DriverManagerDataSource dataSource;
-        dataSource = (DriverManagerDataSource)this.getBean("dataSourceAH",hsr.getServletContext());
-        this.cn = dataSource.getConnection();
+        long time_start, time_end;
+        time_start = System.currentTimeMillis();
+              
+//        DriverManagerDataSource dataSource;
+//        dataSource = (DriverManagerDataSource)this.getBean("dataSourceAH",hsr.getServletContext());
+//        this.cn = dataSource.getConnection();
         List <Students> studentsgrades = new ArrayList();
         String[] levelid = hsr.getParameterValues("nivel");
         String test = hsr.getParameter("levelStudent");
         studentsgrades =this.getStudentslevel(levelid[0]);
         String data=new Gson().toJson(studentsgrades);
         
+        time_end = System.currentTimeMillis();
+        System.out.println("the task has taken "+ ( time_end - time_start ) +" milliseconds");
         return data;
     }
     
@@ -217,16 +207,14 @@ public class EnviarMensaje {
         ArrayList<Students> listaAlumnos = new ArrayList<>();
         String gradelevel = null;
         try {
-            
-             Statement st = this.cn.createStatement();
-            ResultSet rs1= st.executeQuery("select GradeLevel from GradeLevels where GradeLevelID ="+gradeid);
+            ResultSet rs1= Homepage.st2.executeQuery("select GradeLevel from GradeLevels where GradeLevelID ="+gradeid);
              while(rs1.next())
              {
              gradelevel = rs1.getString("GradeLevel");
              }
            
             String consulta = "SELECT * FROM Students where Status = 'Enrolled' and GradeLevel = '"+gradelevel+"'";
-            ResultSet rs = st.executeQuery(consulta);
+            ResultSet rs = Homepage.st2.executeQuery(consulta);
           
             while (rs.next())
             {
@@ -302,10 +290,7 @@ public class EnviarMensaje {
         if(!destinatarios.substring(destinatarios.length()-1).equals("]"))
             destinatarios = destinatarios+"]";
         destinationListAux = (new Gson()).fromJson(destinatarios, destinationListAux.getClass());
-        DriverManagerDataSource dataSource;
-        dataSource = (DriverManagerDataSource)this.getBean("dataSourceAH",hsr.getServletContext());
-        this.cn = dataSource.getConnection();
-        Statement st = this.cn.createStatement();
+
         for(String dest:destinationListAux){
             consulta = "select ps.parentid, ps.relationship, p.firstname as name, p.lastname as lname, ISNULL(p.Email, 0) as mail"
                     + " from parent_student ps"
@@ -313,7 +298,7 @@ public class EnviarMensaje {
                     + " on p.personid = ps.parentid" 
                     + " where ps.studentid ="+dest
                     + " and ps.Custody = 1";
-            ResultSet rs = st.executeQuery(consulta);
+            ResultSet rs = Homepage.st2.executeQuery(consulta);
             while(rs.next()){
                 destinationList.add(rs.getString(1));
                 destinationEmails.add(rs.getString("mail"));
@@ -321,25 +306,22 @@ public class EnviarMensaje {
         }
         String from = ""+((User)hsr.getSession().getAttribute("user")).getId();
         String fromName = "error not found";
-        ResultSet name = st.executeQuery("select * from Person where PersonID="+from);
+        ResultSet name = Homepage.st2.executeQuery("select * from Person where PersonID="+from);
         if(name.next())
             fromName = name.getString("firstname")+" "+name.getString("LastName");
         fromName = limpiarFromName(fromName);
-        dataSource = (DriverManagerDataSource) this.getBean("comunicacion", hsr.getServletContext());
-        this.cn = dataSource.getConnection();
-        st = this.cn.createStatement(); 
         for(String dest:destinationList){
-          ResultSet rs = st.executeQuery("select * from folder where idpersona="+dest+" and nombre='Inbox'");
+          ResultSet rs = Homepage.st.executeQuery("select * from folder where idpersona="+dest+" and nombre='Inbox'");
           if(rs.next())
               folderList.add(rs.getString("idfolder"));
           else
-              folderList.add(createFolder(st,dest,"Inbox"));
+              folderList.add(createFolder(Homepage.st,dest,"Inbox"));
         }
-        ResultSet rs3 = st.executeQuery("select * from folder where idpersona="+u.getId()+" and nombre='Sent'");
+        ResultSet rs3 = Homepage.st.executeQuery("select * from folder where idpersona="+u.getId()+" and nombre='Sent'");
         if(rs3.next())
             folderList.add(rs3.getString("idfolder"));
         else
-            folderList.add(createFolder(st,""+u.getId(),"Sent"));
+            folderList.add(createFolder(Homepage.st,""+u.getId(),"Sent"));
         if(parentid==null)
             consulta = "insert into mensaje (parentid,fecha,prio,asunto,texto) values ("
                     +((User)hsr.getSession().getAttribute("user")).getId()+
@@ -348,18 +330,18 @@ public class EnviarMensaje {
             consulta = "insert into mensaje (parentid,fecha,prio,asunto,texto) values ("
                     +((User)hsr.getSession().getAttribute("user")).getId()+
                     ", '"+time+"' ,"+parentid+",'"+asunto+"','"+text+"')";
-        st.executeUpdate(consulta,Statement.RETURN_GENERATED_KEYS);
-        ResultSet rs = st.getGeneratedKeys();
+        Homepage.st.executeUpdate(consulta,Statement.RETURN_GENERATED_KEYS);
+        ResultSet rs = Homepage.st.getGeneratedKeys();
         if(rs.next())
             msgid = ""+rs.getInt(1);
         for(String f:folderList){
-            st.executeUpdate("insert into msg_folder values("+msgid+","+f+")");
+            Homepage.st.executeUpdate("insert into msg_folder values("+msgid+","+f+")");
         }
         
         for(int i = 0;i<destinationList.size();i++){
             consulta = "insert into msg_from_to(msgid,msfrom,msto,fromname) values("+msgid+","+from+","
                     +destinationList.get(i)+",'"+fromName+"')"; 
-            st.executeUpdate(consulta);
+            Homepage.st.executeUpdate(consulta);
         }
         if(parentid!=null)
             m = new Mensaje(asunto,text,Integer.parseInt(parentid),1,"chemamola");
@@ -375,12 +357,9 @@ public class EnviarMensaje {
 //        this.conectarOracle();
         ArrayList<Students> listaAlumnos = new ArrayList<>();
         try {
-            
-             Statement st = this.cn.createStatement();
-             
             String consulta = "SELECT * FROM Students where Status = 'Enrolled' order by lastname";
-            ResultSet rs = st.executeQuery(consulta);
-          
+            ResultSet rs = Homepage.st2.executeQuery(consulta);
+            
             while (rs.next())
             {
                 Students alumnos = new Students();
@@ -393,7 +372,7 @@ public class EnviarMensaje {
                 alumnos.setSubstatus("Substatus");
                 listaAlumnos.add(alumnos);
             }
-            //this.finalize();
+          
             
         } catch (SQLException ex) {
             System.out.println("Error leyendo Alumnos: " + ex);
