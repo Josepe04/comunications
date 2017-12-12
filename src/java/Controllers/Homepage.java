@@ -12,6 +12,7 @@ package Controllers;
 
 
 import static Controllers.EnviarMensaje.createFolder;
+import atg.taglib.json.util.JSONObject;
 import com.google.gson.Gson;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -210,7 +211,8 @@ public class Homepage extends MultiActionController  {
     public String createFolder(@RequestParam("nombre") String nombre,HttpServletRequest hsr, HttpServletResponse hsr1) throws Exception {
         ArrayList<Folder> listaFolders = new ArrayList();
         User u = (User)hsr.getSession().getAttribute("user");
-        EnviarMensaje.createFolder(st,""+u.getId(), nombre);
+        if(nombre.length()>0)
+            EnviarMensaje.createFolder(st,""+u.getId(), nombre);
         ResultSet rs2 = st.executeQuery("select nombre,idfolder from folder "
                     + "where idpersona = "+u.getId());
             while(rs2.next()){
@@ -326,6 +328,32 @@ public class Homepage extends MultiActionController  {
         mv.addObject("mensaje", m);
         return mv;
     }
+    
+    @RequestMapping("/menu/vermsgajax.htm")
+    public String vermensajeajax(HttpServletRequest hsr, HttpServletResponse hsr1) throws Exception {
+        JSONObject jsonObj = new JSONObject();
+        String id = hsr.getParameter("id");
+        try{
+            String sender="";
+            ResultSet rs = st.executeQuery("select * from msg_from_to where msgid="+id);
+            if(rs.next()){
+                sender = rs.getString("msfrom");
+                jsonObj.put("sender",sender);
+            }
+            ResultSet rs2 = st.executeQuery("select * from mensaje where msgid="+id);
+            if(rs2.next()){                
+                jsonObj.put("asunto", rs2.getString("asunto"));
+                jsonObj.put("texto",rs2.getString("texto"));
+                jsonObj.put("fecha", rs2.getString("fecha"));
+//String asunto, String texto, int prio, String sender,String fecha, int parentid
+//                m = new Mensaje(rs2.getString("asunto"),rs2.getString("texto"),rs2.getInt("prio"),
+//                                sender,rs2.getString("fecha"),rs2.getInt("parentid"));
+            }
+        }catch(SQLException e){
+            System.err.println("fallo al cargar");
+        }
+        return jsonObj.toString();
+    }
 
     @RequestMapping("/menu/recover.htm")
     public String recuperar(@RequestParam("id") String f,HttpServletRequest hsr, HttpServletResponse hsr1) throws Exception {
@@ -349,7 +377,6 @@ public class Homepage extends MultiActionController  {
             if(rs.next())
                 idfolderInbox = rs.getString("idfolder");
             st.execute("insert into msg_folder values("+id+","+idfolderInbox+")");
-            return "";
         }catch(SQLException e){
             System.err.println("fallo en recover");
         }
@@ -388,3 +415,7 @@ public class Homepage extends MultiActionController  {
     }
 
 }
+
+
+
+

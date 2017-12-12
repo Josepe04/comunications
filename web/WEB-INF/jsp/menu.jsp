@@ -39,18 +39,33 @@
                     }
                 });
             }
+            
+            function verMsg(id) {
+                if (window.XMLHttpRequest) //mozilla
+                {
+                    ajax = new XMLHttpRequest(); //No Internet explorer
+                }
+                else
+                {
+                    ajax = new ActiveXObject("Microsoft.XMLHTTP");
+                }
+                ajax.onreadystatechange = funcionCallBackdetailsLesson;
+                ajax.open("POST","vermsgajax.htm?id="+id,true);
+                ajax.send("");
+            };
+            
             function recovermsg(id,folderid){
                 console.log(id);
                 console.log(folderid);
                 var datos=id+" "+folderid; 
+                $('#tr_'+id).remove();
                 $.ajax({
                     type: "POST",
                     url: "recover.htm?id="+datos,
                     data:  datos,
                     dataType: 'text' ,           
                     
-                    success: function() {
-                        $('#tr_'+id).remove();
+                    success: function(vacio) {
                     },
                     error: function (xhr, ajaxOptions, thrownError) {
                         console.log(xhr.status);
@@ -184,7 +199,8 @@
                             columns: [
                                 {data: 'id',
                                     visible: false},
-                                {data: 'name'}
+                                {data: 'name'},
+                                {data: 'button'}
                             ]
                         });
                 $('#table_id').DataTable({
@@ -291,21 +307,26 @@
                                 <thead>
                                     <tr>
                                         <td>ID</td>
-                                        <td>Folders:</td>
+                                        <td>Folders :</td>
+                                        <td></td>
                                     </tr>
                                 </thead>
                                 <c:forEach var="folder" items="${folders}" >
                                     <tr>
                                         <td>${folder.id}</td>
                                         <td>${folder.nombre}</td>
+                                        <td>
+                                            <input onclick="" name="TXTid_lessons_eliminar" type="image" src="<c:url value="/recursos/img/btn/btn_delete.svg"/>" width="30px" data-placement="bottom" title="Delete">
+                                        </td>
                                     </tr>
                                 </c:forEach>
-                            </table>      
+                            </table>     
+                            <div class="text-center">
+                                <input id="fname" style="margin-bottom: 10px;" type="text">
+                                <input type="submit" value="Create Folder" class="btn btn-success" onclick="createFolder($('#fname').val())">
+                            </div>
                         </div>
-                        <div class="text-center">
-                            <input id="fname" style="margin-bottom: 10px;" type="text">
-                            <input type="submit" value="Create Folder" class="btn btn-success" onclick="createFolder($('#fname').val())">
-                        </div>
+                        
                     </div>
                     <div class="col-xs-9" id="tabla_mensajes">
                             <table id="table_id" class="display" >
@@ -329,9 +350,9 @@
                                             <td>${mensaje.fecha}</td>
                                             <td>
                                                     <div class="col-xs-6 sinpadding text-center">
-                                                        <form:form action="vermsg.htm" method="POST">
-                                                            <input id="ver_button" name="ver_button" type="image" src="<c:url value="/recursos/img/btn/btn_details.svg"/>" value="${mensaje.id}" width="30px" data-placement="bottom" title="Details">
-                                                        </form:form>
+<!--                                                        <form:form action="vermsg.htm" method="POST">
+                                                                <input id="ver_button" name="ver_button" type="image" src="<c:url value="/recursos/img/btn/btn_details.svg"/>" value="${mensaje.id}" width="30px" data-placement="bottom" title="Details">
+-->                                                         </form:form>
                                                     </div>
                                                 <div class="col-xs-6 sinpadding text-center">
                                                     <input id="borrar_button_${mensaje.id}" name="TXTid_lessons_eliminar" type="image" src="<c:url value="/recursos/img/btn/btn_delete.svg"/>" value="${mensaje.id}" onclick="borrarmsg(true,${mensaje.id},${mensaje.folderid})" width="30px" data-placement="bottom" title="Delete">
