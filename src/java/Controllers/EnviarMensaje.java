@@ -61,7 +61,7 @@ public class EnviarMensaje {
         try{
             mv.addObject("listaAlumnos", this.getStudents());
             ResultSet rs;
-            if(u.getId()==2 || u.getId()==0)   
+            if(u.getType()==2 || u.getType()==0)   
                 rs = Homepage.st2.executeQuery("SELECT * FROM Classes where (StaffID="+u.getId()
                         +" or AltStaffID="+u.getId()+" or AidID="+u.getId()
                         + ")");
@@ -264,7 +264,7 @@ public class EnviarMensaje {
     @RequestMapping("/enviarmensaje/enviar.htm")
     public ModelAndView enviar( HttpServletRequest hsr, HttpServletResponse hsr1) throws Exception {
         
-        ModelAndView mv = new ModelAndView("redirect:/menu/start.htm");
+        ModelAndView mv = new ModelAndView("redirect:/menu/start.htm?folder=null");
         String destinatarios = hsr.getParameter("destinatarios");
         String asunto = hsr.getParameter("asunto");
         String text = hsr.getParameter("NotificationMessage");

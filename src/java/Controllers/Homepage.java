@@ -74,7 +74,7 @@ public class Homepage extends MultiActionController  {
             boolean result = false;
             ArrayList<Students> children ;
             LoginVerification login = new LoginVerification();
-            ModelAndView mv = new ModelAndView("redirect:/menu/start.htm");
+            ModelAndView mv = new ModelAndView("redirect:/menu/start.htm?folder=null");
             String txtusuario = hsr.getParameter("txtusuario");
             if(txtusuario==null){
                return new ModelAndView("userform");
@@ -92,6 +92,8 @@ public class Homepage extends MultiActionController  {
                    scgrpid=login.getSecurityGroupID("Communications APP");
                    result = login.fromGroup(scgrpid, user.getId());
                    if (result == true){
+//                       user.setId(10393);//padre
+                       user.setId(10332);//profe
                        setTipo(user);
                        session.setAttribute("user", user);
                        return mv;
@@ -99,6 +101,8 @@ public class Homepage extends MultiActionController  {
                     else{
                         children=login.isparent( user.getId());    
                         if(!children.isEmpty()){
+//                            user.setId(10393);//padre
+                            user.setId(10332);//profe
                             setTipo(user);
                             session.setAttribute("user", user);
                             return mv; 
@@ -163,10 +167,11 @@ public class Homepage extends MultiActionController  {
     }
     
     @RequestMapping("/menu/start.htm")
-    public ModelAndView menu(HttpServletRequest hsr, HttpServletResponse hsr1) throws Exception {
+    public ModelAndView menu(@RequestParam("folder") String carpeta,HttpServletRequest hsr, HttpServletResponse hsr1) throws Exception {
          ArrayList<Mensaje> listaMensajes = new ArrayList<>();
          ArrayList<Folder> listaFolders = new ArrayList<>();
          ModelAndView mv = new ModelAndView("menu");
+         String consulta = "";
          User u = (User)hsr.getSession().getAttribute("user");
          try{
             ResultSet folder = st.executeQuery("select * from folder where idpersona="+u.getId()+" and nombre='Inbox'");
@@ -178,11 +183,20 @@ public class Homepage extends MultiActionController  {
             ResultSet folder3 = st.executeQuery("select * from folder where idpersona="+u.getId()+" and nombre='Litter'");
             if(!folder3.next())
                 EnviarMensaje.createFolder(st,""+u.getId(),"Litter");
-            ResultSet rs = st.executeQuery("select mensaje.msgid,msg_folder.idfolder,parentid,fecha,prio,asunto,texto,msfrom,fromname "
-                    + "from mensaje inner join msg_folder on mensaje.msgid=msg_folder.msgid "
-                    + "inner join folder on msg_folder.idfolder=folder.idfolder and folder.nombre='Inbox'"
-                    + "inner join msg_from_to on msg_from_to.msto="+u.getId()
-                    + " where folder.idpersona="+u.getId());
+            if(carpeta.equals("null")){
+                consulta = "select distinct mensaje.msgid,msg_folder.idfolder,parentid,fecha,prio,asunto,texto,msfrom,fromname"
+                    + " from mensaje inner join msg_folder on mensaje.msgid=msg_folder.msgid"
+                    + " inner join folder on msg_folder.idfolder=folder.idfolder and folder.nombre='Inbox'"
+                    + " inner join msg_from_to on mensaje.msgid=msg_from_to.msgid"
+                    + " where folder.idpersona="+u.getId();
+            }else{
+                consulta = "select distinct mensaje.msgid,msg_folder.idfolder,parentid,fecha,prio,asunto,texto,msfrom,fromname"
+                    + " from mensaje inner join msg_folder on mensaje.msgid=msg_folder.msgid"
+                    + " inner join folder on msg_folder.idfolder=folder.idfolder and folder.idfolder="+carpeta
+                    + " inner join msg_from_to on mensaje.msgid=msg_from_to.msgid"
+                    + " where folder.idpersona="+u.getId();
+            }
+            ResultSet rs = st.executeQuery(consulta);
             while(rs.next()){
                 String text = rs.getString("texto");
                 if(text.length()>20)
@@ -304,6 +318,19 @@ public class Homepage extends MultiActionController  {
         return "";
     }
     
+    
+    @RequestMapping("/menu/deletefolder.htm")
+    @ResponseBody
+    public String borrarCarpeta (@RequestParam("id") String id, HttpServletRequest hsr, HttpServletResponse hsr1) throws SQLException{
+        try{
+            st.executeUpdate("delete from folder where idfolder="+id);
+            st.executeUpdate("delete from msg_folder where idfolder="+id);
+        }catch(SQLException e){
+            System.err.println("error al borrar:"+id);
+        }
+        return "";
+    }
+    
     @RequestMapping("/menu/vermsg.htm")
     public ModelAndView vermensaje(HttpServletRequest hsr, HttpServletResponse hsr1) throws Exception {
         Mensaje m=null; 
@@ -330,24 +357,23 @@ public class Homepage extends MultiActionController  {
     }
     
     @RequestMapping("/menu/vermsgajax.htm")
-    public String vermensajeajax(HttpServletRequest hsr, HttpServletResponse hsr1) throws Exception {
+    @ResponseBody
+    public String vermensajeajax(@RequestParam("id") String f,HttpServletRequest hsr, HttpServletResponse hsr1) throws Exception {
         JSONObject jsonObj = new JSONObject();
-        String id = hsr.getParameter("id");
+        String id = f;
         try{
             String sender="";
             ResultSet rs = st.executeQuery("select * from msg_from_to where msgid="+id);
             if(rs.next()){
                 sender = rs.getString("msfrom");
-                jsonObj.put("sender",sender);
+                jsonObj.put("senderid",sender);
+                jsonObj.put("sender",rs.getString("fromname"));
             }
             ResultSet rs2 = st.executeQuery("select * from mensaje where msgid="+id);
             if(rs2.next()){                
                 jsonObj.put("asunto", rs2.getString("asunto"));
                 jsonObj.put("texto",rs2.getString("texto"));
                 jsonObj.put("fecha", rs2.getString("fecha"));
-//String asunto, String texto, int prio, String sender,String fecha, int parentid
-//                m = new Mensaje(rs2.getString("asunto"),rs2.getString("texto"),rs2.getInt("prio"),
-//                                sender,rs2.getString("fecha"),rs2.getInt("parentid"));
             }
         }catch(SQLException e){
             System.err.println("fallo al cargar");

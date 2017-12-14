@@ -71,7 +71,7 @@ public class EnviarmensajePadre {
     
     @RequestMapping("/enviarmensajepadre/enviar.htm")
     public ModelAndView enviar( HttpServletRequest hsr, HttpServletResponse hsr1) throws Exception {
-        ModelAndView mv = new ModelAndView("redirect:/menu/start.htm");
+        ModelAndView mv = new ModelAndView("redirect:/menu/start.htm?folder=null");
         String destinatarios = hsr.getParameter("destinatarios");
         String asunto = hsr.getParameter("asunto");
         String text = hsr.getParameter("NotificationMessage");

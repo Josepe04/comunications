@@ -31,6 +31,7 @@
                     
                     success: function() {
                         $('#tr_'+id).remove();
+                        location.href="start.htm?folder="+folderid;
                     },
                     error: function (xhr, ajaxOptions, thrownError) {
                         console.log(xhr.status);
@@ -40,20 +41,37 @@
                 });
             }
             
-            function verMsg(id) {
-                if (window.XMLHttpRequest) //mozilla
-                {
-                    ajax = new XMLHttpRequest(); //No Internet explorer
-                }
-                else
-                {
-                    ajax = new ActiveXObject("Microsoft.XMLHTTP");
-                }
-                ajax.onreadystatechange = funcionCallBackdetailsLesson;
-                ajax.open("POST","vermsgajax.htm?id="+id,true);
-                ajax.send("");
+            function verMsg(datos) {
+                $.ajax({
+                    type: "POST",
+                    url: "vermsgajax.htm?id="+datos,
+                    data:  datos,
+                    dataType: 'text' ,           
+                    
+                    success: function(data) {
+                        var object = JSON.parse(data);
+                        var cosas = "['"+object.senderid+"']";
+                        $('#asuntov').empty();
+                        $('#asuntov').append('<tr><td>'+object.asunto+'</td></tr>');
+                        $('#senderv').empty();
+                        $('#senderv').append('<tr><td>'+object.sender+'</td></tr>');
+                        $('#replydata').empty();
+                        $('#replydata').append('<input name="destinatarios" id="destinatarios" value="'+cosas+'" type="hidden">');
+                        $('#replydata').append('<input name="parentid" id="parentid" type="hidden" value="'+datos+'">');
+                        $('#fechav').empty();
+                        $('#fechav').append('<tr><td>'+object.fecha+'</td></tr>');
+                        $('#textov').empty();
+                        $('#textov').append('<tr><td>'+object.texto+'</td></tr>');
+                        $('#detailsLesson').modal('show');
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        console.log(xhr.status);
+                        console.log(xhr.responseText);
+                        console.log(thrownError);
+                    }
+                });
             };
-            
+
             function recovermsg(id,folderid){
                 console.log(id);
                 console.log(folderid);
@@ -90,15 +108,20 @@
                                     '<tr>'+
                                         '<td>id</td>'+
                                         '<td>Folders:</td>'+
+                                        '<td></td>'+
                                     '</tr>'+
                                 '</thead>'+
                                 '<tbody></tbody>'+
                                 '</table>');
                             $.each(json, function(i) {
-                                var columna = $('<tr>'+
+                                var columna = '<tr id="folder_'+json[i].id+'">'+
                                         '<td>'+json[i].id+'</td>'+
                                         '<td>'+json[i].nombre+'</td>'+
-                                        '</tr>');   
+                                        '<td>';
+                                if(json[i].nombre!=='Sent'&&json[i].nombre!=='Litter'&&json[i].nombre!=='Inbox')
+                                    columna+='<input onclick="borrarFolder('+json[i].id+')" type="image" src="<c:url value="/recursos/img/btn/borrar.svg"/>" width="30px" data-placement="bottom" title="Delete">';
+                                columna+='</td> </tr>'; 
+                                $(columna);   
                                 $('#table_folders tbody').append(columna);
                             });
                             table = $('#table_folders').DataTable(
@@ -110,11 +133,13 @@
                                 columns: [
                                     {data: 'id',
                                         visible: false},
-                                    {data: 'name'}
+                                    {data: 'name'},
+                                    {data: 'button'}
                                 ]
                             });
                             $('#table_folders tbody').on('click', 'tr',function(){
                                 var seleccion = table.row( this ).data().id;
+                                var nombre = table.row( this ).data().name;
                                 $.ajax({
                                     type: "POST",
                                     url: "chargefolder.htm?seleccion="+seleccion,
@@ -138,24 +163,27 @@
                                             '</thead>'+
                                             '</table>');
                                         $("#table_id").append($('<tbody></tbody>'));
+                                        var anadir = true;
+                                        if(nombre==='Litter')
+                                            anadir = false;
                                         $.each(json, function(i) {
-                                            var columna = $('<tr id="tr_'+json[i].id+'">'+
-                                                    '<td>'+json[i].parentid+'</td>'+
+                                            var columna = '<tr id="tr_'+json[i].id +'">'+
+                                                    '<td>'+json[i].id+'</td>'+
                                                     '<td>'+json[i].asunto+'</td>'+
                                                     '<td>'+json[i].sender+'</td>'+
                                                     '<td>'+json[i].texto+'</td>'+
                                                     '<td>'+json[i].fecha+'</td>'+
-                                                    '<td> <div class="sinpadding text-center">'+
-                                                                '<form:form action="vermsg.htm" method="POST">'+
-                                                                        '<input id="folder" name="folder" type="hidden" value='+json[i].folderid+'>'+
-                                                                        '<input id="ver_button" name="ver_button" type="image" src="<c:url value="/recursos/img/btn/btn_details.svg"/>" value="'+json[i].id+'" width="30px" data-placement="bottom" title="Details">'+
-                                                                '</form:form>'+
-                                                            '</div>'+
+                                                    '<td> <div class="col-xs-6 sinpadding text-center" >';
+                                            if(nombre === 'Litter')
+                                                columna+= '<input id="recover_button_'+json[i].id+'" onclick="recovermsg('+json[i].id+','+json[i].folderid+')" type="image" src="<c:url value="/recursos/img/btn/recover.png"/>" value="'+json[i].id+'" width="30px" data-placement="bottom" title="Recover">';
+                                            if(nombre!=='Sent' && nombre!=='Litter')
+                                                columna+='<input onclick="verMsg('+json[i].id+');" id="ver_button" name="ver_button" type="image" src="<c:url value="/recursos/img/btn/btn_details.svg"/>" width="30px" data-placement="bottom" title="Details">';
+                                            columna+='</div>'+
                                                             '<div class="col-xs-6 sinpadding text-center">'+
-                                                                '<input class="delete" name="TXTid_lessons_eliminar" type="image" src="<c:url value="/recursos/img/btn/btn_delete.svg"/>" width="30px" data-placement="bottom" title="Delete">'+
+                                                                '<input id="borrar_button_'+json[i].id+'" onclick="borrarmsg('+anadir+','+json[i].id+','+json[i].folderid+')" class="delete" name="TXTid_lessons_eliminar" type="image" src="<c:url value="/recursos/img/btn/btn_delete.svg"/>" width="30px" data-placement="bottom" title="Delete">'+
                                                             '</div>'+
-                                                    '</tr>');   
-                                            $('#table_id tbody').append(columna);
+                                                    '</tr>';   
+                                            $('#table_id tbody').append($(columna));
                                         });
                                         $('#table_id').DataTable({
                                             "aLengthMenu": [[5, 10, 20, -1], [5, 10, 20, "All"]],
@@ -188,6 +216,7 @@
                         }
                     });
             }
+    
             $(document).ready( function (){
                 //$("#tg").treegrid();
                  table = $('#table_folders').DataTable(
@@ -259,10 +288,7 @@
                                 if(nombre === 'Litter')
                                     columna+= '<input id="recover_button_'+json[i].id+'" onclick="recovermsg('+json[i].id+','+json[i].folderid+')" type="image" src="<c:url value="/recursos/img/btn/recover.png"/>" value="'+json[i].id+'" width="30px" data-placement="bottom" title="Recover">';
                                 if(nombre!=='Sent' && nombre!=='Litter')
-                                    columna+='<form:form action="vermsg.htm" method="POST">'+
-                                                                '<input id="folder" name="folder" type="hidden" value='+json[i].folderid+'>'+
-                                                                '<input id="ver_button" name="ver_button" type="image" src="<c:url value="/recursos/img/btn/btn_details.svg"/>" value="'+json[i].id+'" width="30px" data-placement="bottom" title="Details">'+
-                                                        '</form:form>';
+                                    columna+='<input onclick="verMsg('+json[i].id+');" id="ver_button" name="ver_button" type="image" src="<c:url value="/recursos/img/btn/btn_details.svg"/>" width="30px" data-placement="bottom" title="Details">';
                                 columna+='</div>'+
                                                 '<div class="col-xs-6 sinpadding text-center">'+
                                                     '<input id="borrar_button_'+json[i].id+'" onclick="borrarmsg('+anadir+','+json[i].id+','+json[i].folderid+')" class="delete" name="TXTid_lessons_eliminar" type="image" src="<c:url value="/recursos/img/btn/btn_delete.svg"/>" width="30px" data-placement="bottom" title="Delete">'+
@@ -294,6 +320,31 @@
                     });
                 });
             });
+           
+            function borrarFolder(id){
+                $('#borrarfolder').empty();
+                $('#borrarfolder').append('<button onclick="borrarFolderAjax('+id+')" type="button" class="btn btn-danger">Delete folder</button>');
+                $('#borrar_modal').modal('show');
+            }
+            
+            function borrarFolderAjax(id){
+                $.ajax({
+                    type: "POST",
+                    url: "deletefolder.htm?id="+id,
+                    data:  id,
+                    dataType: 'text' ,           
+                    success: function() {
+                        $('#folder_'+id).remove();
+                        $('#borrar_modal').modal('hide');
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        console.log(xhr.status);
+                        console.log(xhr.responseText);
+                        console.log(thrownError);
+                    }
+                });
+            }
+            
         </script>
     </head>
     <body>
@@ -312,11 +363,22 @@
                                     </tr>
                                 </thead>
                                 <c:forEach var="folder" items="${folders}" >
-                                    <tr>
+                                    <tr  id="folder_${folder.id}">
                                         <td>${folder.id}</td>
                                         <td>${folder.nombre}</td>
                                         <td>
-                                            <input onclick="" name="TXTid_lessons_eliminar" type="image" src="<c:url value="/recursos/img/btn/btn_delete.svg"/>" width="30px" data-placement="bottom" title="Delete">
+                                            <c:choose>
+                                                <c:when test="${folder.nombre=='Inbox'}">
+                                                </c:when>    
+                                                <c:when test="${folder.nombre=='Sent'}">
+                                                </c:when>
+                                                <c:when test="${folder.nombre=='Litter'}">
+                                                </c:when>    
+                                                <c:otherwise>
+                                                    <input onclick="borrarFolder(${folder.id})" type="image" src="<c:url value="/recursos/img/btn/borrar.svg"/>" width="30px" data-placement="bottom" title="Delete">
+                                                </c:otherwise>
+                                            </c:choose>
+                                            
                                         </td>
                                     </tr>
                                 </c:forEach>
@@ -350,9 +412,7 @@
                                             <td>${mensaje.fecha}</td>
                                             <td>
                                                     <div class="col-xs-6 sinpadding text-center">
-<!--                                                        <form:form action="vermsg.htm" method="POST">
-                                                                <input id="ver_button" name="ver_button" type="image" src="<c:url value="/recursos/img/btn/btn_details.svg"/>" value="${mensaje.id}" width="30px" data-placement="bottom" title="Details">
--->                                                         </form:form>
+                                                        <input id="ver_button" onclick="verMsg(${mensaje.id})" name="ver_button" type="image" src="<c:url value="/recursos/img/btn/btn_details.svg"/>" value="${mensaje.id}" width="30px" data-placement="bottom" title="Details">
                                                     </div>
                                                 <div class="col-xs-6 sinpadding text-center">
                                                     <input id="borrar_button_${mensaje.id}" name="TXTid_lessons_eliminar" type="image" src="<c:url value="/recursos/img/btn/btn_delete.svg"/>" value="${mensaje.id}" onclick="borrarmsg(true,${mensaje.id},${mensaje.folderid})" width="30px" data-placement="bottom" title="Delete">
@@ -368,6 +428,102 @@
                 </div>
                 </div>
             </fieldset>
+        </div>
+        <!-- Modal delete-->
+        <div id="detailsLesson" class="modal fade" role="dialog">
+          <div class="modal-dialog modal-lg">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+              <div class="modal-header modal-header-details">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">show message</h4>
+              </div>
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <div class="col-xs-4">
+                            <div class="row title">
+                                <h4>Subject</h4>
+                            </div>
+                             <div class="row" id="asuntov">
+
+                            </div>
+                            <div class="row title">     
+                                <h4>Sender</h4>
+                            </div>
+                            <div class="row" id ="senderv">
+
+                            </div>
+                            <div class="row title">
+                                <h4>Date</h4>
+                            </div>
+                            <div class="row" id="fechav">
+
+                            </div>
+                        </div>
+                        <div class="col-xs-8">
+                            <div class="row title">
+                                <h4>texto</h4> 
+                            </div>
+                            <div class="row">
+                                <ul id="textov">
+                                    
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                     
+              <div class="modal-footer">
+                <div id="replypanel">
+                            <form:form action="responder.htm" method="POST">
+                                <div id="replydata">
+                                </div>  
+                                <div>
+                                    <label class="control-label">Asunto</label> 
+                                </div>
+                                <div>
+                                    <textarea name="asunto" id="asunto" rows="1" cols="40"></textarea>
+                                </div>
+                                <label class="control-label">Text</label>
+                                <textarea name="NotificationMessage" id="NotificationMessage" required="required"></textarea>
+                                <script> CKEDITOR.replace('NotificationMessage');</script>
+
+                                <div class="col-xs-12 text-center">
+                                    <input class="btn btn-primary btn-lg" type="submit" name="Submit" value="reply"onclick="rellenarText()">
+                                </div>
+                            </form:form>
+                        </div>
+                </div>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+        <div id="borrar_modal" class="modal fade" role="dialog">
+          <div class="modal-dialog modal-lg">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+              <div class="modal-header modal-header-details">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Delete folder</h4>
+              </div>
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <h2>Are you sure? </h2>
+                    </div>
+                     
+                    <div class="modal-footer">
+                        <div id="borrarfolder">
+                            <button type="button" class="btn btn-danger">Delete folder</button>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+
+          </div>
         </div>
     </body>
 </html>
