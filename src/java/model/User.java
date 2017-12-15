@@ -10,12 +10,18 @@ package model;
  * @author nmohamed
  */
 public class User {
-    
+
     private int id;
     private String name;
     private String lang;
     private int type;
 
+    public User(int id) {
+        this.id = id;
+    }
+    
+    public User() {}
+    
     public String getPassword() {
         return password;
     }

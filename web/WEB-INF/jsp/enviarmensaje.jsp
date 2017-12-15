@@ -21,10 +21,68 @@
             
             function rellenarText() {
                 var message = CKEDITOR.instances.NotificationMessage.getData();
+                $('#destino option').prop('selected',true);
                 $('#NotificationMessage').val(message);
             }
 
             $(document).ready(function () {
+                 $('.pasar').click(function() {             
+                    var exist = false;
+                    $('#destino option').each(function() {
+                        if($('#origen option:selected').val() === $(this).val()) exist = true;
+                    });
+                    
+                    if(!exist)!$('#origen option:selected').clone().appendTo('#destino');
+                    
+                    $('#destino option').first().prop('selected',true);                     
+                    return;
+                });  
+		
+        
+                $('.quitar').click(function() {
+                    !$('#destino option:selected').remove();
+                    $('#destino option').first().prop('selected',true);
+                    
+                    var alumnosSelected = $('#destino option').length;
+                    var objectiveSelected = $('#objective').val();
+                    if(alumnosSelected === 0 || ( objectiveSelected === 0 || objectiveSelected === null || objectiveSelected === '')){
+                        $('#saveEdit').attr('disabled', true);
+                    }
+                    return;  
+                });
+		$('.pasartodos').click(function() {
+                    $('#origen option').each(function() {
+                        
+                    var valueInsert = $(this).val();
+                    var exist = false;
+                    $('#destino option').each(function() {
+                        if(valueInsert === $(this).val())exist = true;
+                    });
+
+                    if(!exist)$(this).clone().appendTo('#destino'); 
+                   
+                    var objectiveSelected = $('#objective').val();
+                    if( objectiveSelected === 0 || objectiveSelected === null || objectiveSelected === ''){
+                        $('#saveEdit').attr('disabled', true);
+                    }
+                    });
+                    
+                    var numAlum = $('#destino option').length;
+                    if(document.getElementById("objective").value !== 'Select Objective' && document.getElementById("objective").value !== '' && document.getElementById("NameLessons").value !== '' && document.getElementById("comments").value !== '' && $('#fecha input').val() !== '' && $('#horainicio input').val() !== '' && $('#horafin input').val() !== '' && numAlum > 0){
+                        $('#saveEdit').attr('disabled', false);
+                    }
+                    else{
+                        $('#saveEdit').attr('disabled', true);
+                    }
+                    
+                    $('#destino option').first().prop('selected',true);
+                });
+                
+                $('.quitartodos').click(function() {
+                    $('#destino option').each(function() { $(this).remove(); });
+                    $('#saveEdit').attr('disabled', true);
+                });
+                
                 $("#tg").treegrid();
                 table = $('#table_students').DataTable(
                         {
@@ -175,15 +233,14 @@
                     type: "POST",
                     url: "studentlistLevel.htm?nivel=" + nivel,
                     data: nivel,
-         dataType: 'text',
+                    dataType: 'text',
                     success: function (data) {
                         var json = JSON.parse(data);
                         //var table = $('#table_students').DataTable();
-                        table.clear();
-
+                        $('#origen').empty();
                         $.each(json, function (i) {
-                            table.row.add({'id': json[i].id_students, 'name': json[i].nombre_students}).draw();
-
+                            $('#origen').append('<option value="'+json[i].id_students
+                                    +'" >'+json[i].nombre_students+'</option>');
                         });
 
                     },
@@ -208,11 +265,10 @@
                     success: function (data) {
                         var json = JSON.parse(data);
                         //var table = $('#table_students').DataTable();
-                        table.clear();
-
+                        $('#origen').empty();
                         $.each(json, function (i) {
-                            table.row.add({'id': json[i].id_students, 'name': json[i].nombre_students}).draw();
-
+                            $('#origen').append('<option value="'+json[i].id_students
+                                    +'" >'+json[i].nombre_students+'</option>');
                         });
 
                     },
@@ -390,84 +446,90 @@
     <body>
         <div class="container">
             <h1 class="text-center">Send Message</h1>
-
-            <form:form action="enviar.htm" method="POST">
-
-                <fieldset>
-                    <!--                    <legend>Select student</legend>-->
-                    <div class="col-xs-9 center-block form-group" style="padding-right: 0px;">
+            <div>
+                <form:form action="enviar.htm" method="POST">
+                    <div class="col-xs-12 center-block form-group" style="padding-right: 0px;">
                         <div>
                             <input name="destinatarios" id="destinatarios" type="hidden" ></input>
                         </div>
-                        <div>
-                            <label>Recipients: </label>
-                        </div>
-                        <div>
-                            <textarea readonly="readonly" id="names" style="width:60%"></textarea>
-                        </div>
-                        <div>
-                            <label class="control-label">Asunto</label> 
-                        </div>
-                        <div>
-                            <textarea name="asunto" id="asunto" rows="1" cols="40"></textarea>
-                        </div>
-                        <label class="control-label">Text</label>
-                        <textarea name="NotificationMessage" id="NotificationMessage" required="required"></textarea>
-                        <script> CKEDITOR.replace('NotificationMessage');</script>
                         
-                        <div class="col-xs-12 text-center">
-                            <input class="btn btn-primary btn-lg" type="submit" name="Submit" value="send"onclick="rellenarText()">
+                        <div id="selector_de_alumnos" class="col-xs-12">
+                            <div class="form-group collapse in" id="contenedorStudents">
+                                <div class="col-xs-12">
+                                    <div class="col-xs-3">
+                                        <label>Filter</label>  
+                                        <c:set value="${user.type}" var="num"/>
+                                        <c:choose>
+                                            <c:when test="${num=='2'}">
+                                            </c:when>    
+                                            <c:when test="${num=='0'}">
+                                            </c:when>
+                                            <c:otherwise>
+                                                <select class="form-control" id="filter" style="margin-bottom: 5px;" onchange="comboSelectFilter()">
+                                                    <option value="1">Classes</option>
+                                                    <option value="0">Levels</option>
+                                                </select>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group collapse in">
+                                    <div class="col-xs-2" id="filtro">
+                                        <select class="form-control" id="pepe" style="width: 100% !important;" onchange="comboSelectionClassStudent()">
+                                            <c:forEach var="levels" items="${gradelevels}">
+                                                <option value="${levels.id[0]}" >${levels.name}</option>
+                                            </c:forEach>
+                                        </select>
+                                    </div>
+                                    <div class="col-xs-4">
+                                        <select class="form-control" size="20" multiple name="origen[]" id="origen" style="width: 100% !important;" >
+                                            <c:forEach var="alumnos" items="${listaAlumnos}" >
+                                                <option value="${alumnos.id_students}" >${alumnos.nombre_students}</option>
+                                            </c:forEach>
+                                        </select>
+                                    </div>
+                                    <div class="col-xs-2">
+                                        <div class="col-xs-12 text-center" style="padding-bottom: 10px; padding-top: 50px;">
+                                            <input type="button" class="btn btn-success btn-block pasar" value="add »">
+                                        </div>
+                                        <div class="col-xs-12 text-center" style="padding-bottom: 10px;">
+                                            <input type="button" class="btn btn-danger btn-block quitar" value="« remove">
+                                        </div>
+                                        <div class="col-xs-12 text-center" style="padding-bottom: 10px;">
+                                            <input type="button" class="btn btn-success btn-block pasartodos" value="add all »">
+                                        </div>
+                                        <div class="col-xs-12 text-center" style="padding-bottom: 10px;">
+                                            <input type="button" class="btn btn-danger btn-block quitartodos" value="« remove all">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xs-4">
+                                        <select class="form-control" size="20" multiple name="destino[]" id="destino" style="width: 100% !important;"> 
+
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12" style="margin-top: 40px;">
+                                <label class="control-label">Asunto</label> 
+                            <div class="col-xs-12">
+                                <textarea name="asunto" id="asunto" rows="1" cols="40"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-xs-12">
+                            <label class="control-label">Text</label>
+                            <textarea name="NotificationMessage" id="NotificationMessage" required="required"></textarea>
+                            <script> CKEDITOR.replace('NotificationMessage');</script>
+
+                            <div class="col-xs-12 text-center">
+                                <input class="btn btn-primary btn-lg" type="submit" name="Submit" value="send"onclick="rellenarText()">
+                            </div>
                         </div>
                     </div>
-
-                    <div class="col-xs-3">
-                        <c:set value="${user.type}" var="num"/>
-                        <c:choose>
-                            <c:when test="${num=='2'}">
-                            </c:when>    
-                            <c:when test="${num=='0'}">
-                            </c:when>
-                            <c:otherwise>
-                                <label>Filter</label>
-                                <select class="form-control" id="filter" style="margin-bottom: 5px;" onchange="comboSelectFilter()">
-                                    <option value="1">Classes</option>
-                                    <option value="0">Levels</option>
-                                </select>
-                            </c:otherwise>
-                        </c:choose>
-                        <div class="col-xs-12" id="filtro">
-                            <select class="form-control" name="levelStudent" id="pepe" style="width: 100% !important;" onchange="comboSelectionLevelStudent()">
-                                <c:forEach var="levels" items="${gradelevels}">
-                                    <option value="${levels.id[0]}">${levels.name}</option>
-                                </c:forEach>
-                            </select>
-                        </div>
-                        <!--                        <div class="col-xs-12">
-                                                    <label>By name</label>
-                                                    <input class="form-control" name="nameStudent" id="nameStudent" style="width: 100% !important;" onchange="comboSelectionnameStudent()">
-                                                </div>-->
-                        <div class="col-xs-12 studentarea">
-                            <table id="table_students" class="display" >
-                                <thead>
-                                    <tr>
-                                        <td>ID</td>
-                                        <td>Name students</td>
-                                    </tr>
-                                </thead>
-                                <c:forEach var="alumnos" items="${listaAlumnos}" >
-                                    <tr>
-                                        <td >${alumnos.id_students}</td>
-                                        <td >${alumnos.nombre_students}</td>
-                                    </tr>
-                                </c:forEach>
-                            </table>      
-                        </div>
-                    </div> 
-                </fieldset>
+                </div>
             </form:form>
-            <div>
-
-            </div>
         </div>
 
         <div class="divLoadStudent" id="loadingmessage">
@@ -475,47 +537,26 @@
                 <img src='../recursos/img/large_loading.gif'/>
             </div>
         </div>
-
+        <c:if test="${error=='error'}">
+            <script>
+                $(document).ready(function () {
+                    $('#myModal').modal('show');
+                });
+            </script>
+        </c:if>
         <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <button onclick="location.href='start.htm';" type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                         <!--        <h4 class="modal-title" id="myModalLabel">Modal title</h4>-->
                     </div>
                     <div class="modal-body text-center">
-                        <H1><%= request.getParameter("message")%></H1>
-                    </div>
-                    <!--      <div class="modal-footer">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-primary">Save changes</button>
-                          </div>-->
-                </div>
-            </div>
-        </div>
-
-
-        <div id="modalCommentGeneral">
-            <!-- Button trigger modal -->
-            <button type="button" class="btn btn-primary btn-lg hidden" data-toggle="modal" data-target="#modalComment" id="showModalComment">
-                Launch demo modal
-            </button>   
-            <!-- Modal -->
-            <div class="modal fade" id="modalComment" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                            <h4 class="modal-title" id="titleComment"></h4>
-                        </div>
+                        <H1>eror</H1>
                     </div>
                 </div>
             </div>
         </div>
-
-
-
-
     </body>
 </html>
 

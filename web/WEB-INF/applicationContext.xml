@@ -23,18 +23,10 @@
          p:username="CA_PAN_CUST"
         p:password="RansomSigma+339"/>
 
-
-    <!--bean id="propertyConfigurer"
-          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"
-          p:location="/WEB-INF/jdbc.properties" />
-
-<bean id="dataSource"
-    class="org.springframework.jdbc.datasource.DriverManagerDataSource"
-    p:driverClassName="${jdbc.driverClassName}"
-    p:url="${jdbc.url}"
-    p:username="${jdbc.username}"
-    p:password="${jdbc.password}" /-->
-
-    <!-- ADD PERSISTENCE SUPPORT HERE (jpa, hibernate, etc) -->
+<!--<bean id="dataSourceAH" class="org.springframework.jdbc.datasource.DriverManagerDataSource"
+        p:driverClassName="com.microsoft.sqlserver.jdbc.SQLServerDriver"
+        p:url="jdbc:sqlserver://ah-zaf.odbc.renweb.com\ah_zaf:1433;databaseName=ah_zaf"
+         p:username="AH_ZAF_CUST"
+        p:password="BravoJuggle+396"/>-->
 
 </beans>

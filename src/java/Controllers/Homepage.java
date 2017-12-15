@@ -11,7 +11,6 @@ package Controllers;
  */
 
 
-import static Controllers.EnviarMensaje.createFolder;
 import atg.taglib.json.util.JSONObject;
 import com.google.gson.Gson;
 import java.io.PrintWriter;
@@ -69,12 +68,14 @@ public class Homepage extends MultiActionController  {
     @RequestMapping("/login.htm")
     public ModelAndView login(HttpServletRequest hsr, HttpServletResponse hsr1) throws Exception {
             HttpSession session = hsr.getSession();
-            User user = new User();
+            User user = new User();//cambiar
             int scgrpid = 0;
             boolean result = false;
             ArrayList<Students> children ;
             LoginVerification login = new LoginVerification();
             ModelAndView mv = new ModelAndView("redirect:/menu/start.htm?folder=null");
+//            setTipo(user);//borrar
+//            session.setAttribute("user", user); //borrar
             String txtusuario = hsr.getParameter("txtusuario");
             if(txtusuario==null){
                return new ModelAndView("userform");
@@ -93,7 +94,7 @@ public class Homepage extends MultiActionController  {
                    result = login.fromGroup(scgrpid, user.getId());
                    if (result == true){
 //                       user.setId(10393);//padre
-                       user.setId(10332);//profe
+//                       user.setId(10332);//profe
                        setTipo(user);
                        session.setAttribute("user", user);
                        return mv;
@@ -102,7 +103,7 @@ public class Homepage extends MultiActionController  {
                         children=login.isparent( user.getId());    
                         if(!children.isEmpty()){
 //                            user.setId(10393);//padre
-                            user.setId(10332);//profe
+//                            user.setId(10332);//profe
                             setTipo(user);
                             session.setAttribute("user", user);
                             return mv; 
@@ -116,6 +117,7 @@ public class Homepage extends MultiActionController  {
                     }
                 }
              }
+        //return mv;
     }
 
         //user.setId(10333);

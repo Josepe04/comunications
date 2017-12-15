@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import model.Mensaje;
 import com.google.gson.Gson;
+import java.util.Arrays;
 import java.util.Calendar;
 import model.User;
 import org.springframework.context.ApplicationContext;
@@ -265,21 +266,21 @@ public class EnviarMensaje {
     public ModelAndView enviar( HttpServletRequest hsr, HttpServletResponse hsr1) throws Exception {
         
         ModelAndView mv = new ModelAndView("redirect:/menu/start.htm?folder=null");
-        String destinatarios = hsr.getParameter("destinatarios");
+        String[] destinationListAux = hsr.getParameterValues("destino[]");
         String asunto = hsr.getParameter("asunto");
         String text = hsr.getParameter("NotificationMessage");
         String parentid = hsr.getParameter("parentid");
         String msgid = "";
         String consulta;
-        if(asunto.equals("") || asunto.length()>30 || text.equals("") || destinatarios.equals("")){
-            mv = new ModelAndView("redirect:/enviarmensaje/start.htm");
+        if(asunto.equals("") || asunto.length()>30 || text.equals("") || destinationListAux==null){
+            mv = new ModelAndView("enviarmensaje");
             mv.addObject("error", "error");
             return mv;
         }
             
         Mensaje m;
         User u = (User)hsr.getSession().getAttribute("user");
-        ArrayList<String> destinationListAux = new ArrayList<>();
+        
         ArrayList<String> destinationList = new ArrayList<>();
         ArrayList<String> destinationEmails = new ArrayList<>();
         ArrayList<String> folderList = new ArrayList<>();
@@ -287,10 +288,6 @@ public class EnviarMensaje {
         String time = t.get(Calendar.YEAR)+ "-" +t.get(Calendar.MONTH)+
                     "-"+t.get(Calendar.DAY_OF_MONTH)+" "+t.get(Calendar.HOUR)+":"+
                     t.get(Calendar.MINUTE)+":"+t.get(Calendar.SECOND);
-        if(!destinatarios.substring(destinatarios.length()-1).equals("]"))
-            destinatarios = destinatarios+"]";
-        destinationListAux = (new Gson()).fromJson(destinatarios, destinationListAux.getClass());
-
         for(String dest:destinationListAux){
             consulta = "select ps.parentid, ps.relationship, p.firstname as name, p.lastname as lname, ISNULL(p.Email, 0) as mail"
                     + " from parent_student ps"
