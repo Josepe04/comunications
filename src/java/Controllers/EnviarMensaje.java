@@ -47,13 +47,15 @@ public class EnviarMensaje {
     }
     @RequestMapping("/enviarmensaje/start.htm")
     public ModelAndView start(HttpServletRequest hsr, HttpServletResponse hsr1) throws Exception {
+        ModelAndView mv = Homepage.checklogin(hsr);
+         if(mv!=null)
+             return mv;
         User u = (User)hsr.getSession().getAttribute("user");
         boolean p = Boolean.parseBoolean(hsr.getParameter("reply"));
         String parameter2 = hsr.getParameter("parentid");
         int p2=-1;
         if(parameter2!=null)
             p2 = Integer.parseInt(parameter2);
-        ModelAndView mv;
         mv = new ModelAndView("enviarmensaje");
         List <Level> grades = new ArrayList();
         
@@ -264,8 +266,10 @@ public class EnviarMensaje {
     
     @RequestMapping("/enviarmensaje/enviar.htm")
     public ModelAndView enviar( HttpServletRequest hsr, HttpServletResponse hsr1) throws Exception {
-        
-        ModelAndView mv = new ModelAndView("redirect:/menu/start.htm?folder=null");
+        ModelAndView mv = Homepage.checklogin(hsr);
+         if(mv!=null)
+             return mv;
+        mv = new ModelAndView("redirect:/menu/start.htm?folder=null");
         String[] destinationListAux = hsr.getParameterValues("destino[]");
         String asunto = hsr.getParameter("asunto");
         String text = hsr.getParameter("NotificationMessage");

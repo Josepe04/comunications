@@ -53,7 +53,9 @@ public class EnviarmensajePadre {
     @RequestMapping("/enviarmensajepadre/start.htm")
     public ModelAndView start(HttpServletRequest hsr, HttpServletResponse hsr1) throws Exception {
         User us = (User) hsr.getSession().getAttribute("user");
-        ModelAndView mv;
+        ModelAndView mv = Homepage.checklogin(hsr);
+         if(mv!=null)
+             return mv;
         mv = new ModelAndView("enviarmensajepadre");
         try {
             mv.addObject("hijos", getChildren(us));
@@ -66,7 +68,10 @@ public class EnviarmensajePadre {
     
     @RequestMapping("/enviarmensajepadre/enviar.htm")
     public ModelAndView enviar( HttpServletRequest hsr, HttpServletResponse hsr1) throws Exception {
-        ModelAndView mv = new ModelAndView("redirect:/menu/start.htm?folder=null");
+        ModelAndView mv = Homepage.checklogin(hsr);
+         if(mv!=null)
+             return mv;
+        mv = new ModelAndView("redirect:/menu/start.htm?folder=null");
         String asunto = hsr.getParameter("asunto");
         String text = hsr.getParameter("NotificationMessage");
         String data = hsr.getParameter("student");

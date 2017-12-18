@@ -43,12 +43,18 @@ public class SeleccionHijo {
     
     @RequestMapping("/seleccionHijo/start.htm")
     public ModelAndView seleccion(HttpServletRequest hsr, HttpServletResponse hsr1) throws SQLException{
-        ModelAndView mv = new ModelAndView("seleccionHijo");
+        ModelAndView mv = Homepage.checklogin(hsr);
+         if(mv!=null)
+             return mv;
+        mv = new ModelAndView("seleccionHijo");
         return mv;
     }
     
     @RequestMapping("/seleccionHijo/seleccionado.htm")
     public ModelAndView seleccionado(HttpServletRequest hsr, HttpServletResponse hsr1) throws SQLException{
+        ModelAndView mv = Homepage.checklogin(hsr);
+         if(mv!=null)
+             return mv;
         if(hsr.getParameter("submit").equals("father"))
             return new ModelAndView("redirect:/enviarmensajepadre/start.htm");
         else

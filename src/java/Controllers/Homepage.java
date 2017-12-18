@@ -56,13 +56,23 @@ public class Homepage extends MultiActionController  {
     public ModelAndView inicio(HttpServletRequest hsr, HttpServletResponse hsr1) throws Exception {
         //connection to comunication
         DriverManagerDataSource dataSource = (DriverManagerDataSource) this.getBean("comunicacion", hsr.getServletContext());
+        if(this.cn!=null)
+            Homepage.cn.close();
         this.cn = dataSource.getConnection();
         st = this.cn.createStatement(); 
         //connection to datasourceAH
         DriverManagerDataSource dataSource2 = (DriverManagerDataSource)this.getBean("dataSourceAH",hsr.getServletContext());
+        if(this.cn2!=null)
+            Homepage.cn2.close();
         this.cn2 = dataSource2.getConnection();
         this.st2 = cn2.createStatement();
         return new ModelAndView("userform");
+    }
+    
+    public static ModelAndView checklogin(HttpServletRequest hsr){
+        if(hsr.getSession().getAttribute("user") == null)
+            return new ModelAndView("redirect:/");
+        return null;
     }
     
     @RequestMapping("/login.htm")
@@ -170,9 +180,12 @@ public class Homepage extends MultiActionController  {
     
     @RequestMapping("/menu/start.htm")
     public ModelAndView menu(@RequestParam("folder") String carpeta,HttpServletRequest hsr, HttpServletResponse hsr1) throws Exception {
+         ModelAndView mv = checklogin(hsr);
+         if(mv!=null)
+             return mv;
          ArrayList<Mensaje> listaMensajes = new ArrayList<>();
          ArrayList<Folder> listaFolders = new ArrayList<>();
-         ModelAndView mv = new ModelAndView("menu");
+         mv = new ModelAndView("menu");
          String consulta = "";
          User u = (User)hsr.getSession().getAttribute("user");
          try{
@@ -336,7 +349,10 @@ public class Homepage extends MultiActionController  {
     @RequestMapping("/menu/vermsg.htm")
     public ModelAndView vermensaje(HttpServletRequest hsr, HttpServletResponse hsr1) throws Exception {
         Mensaje m=null; 
-        ModelAndView mv = new ModelAndView("vermensaje");
+        ModelAndView mv = checklogin(hsr);
+         if(mv!=null)
+             return mv;
+        mv = new ModelAndView("vermensaje");
         String id = hsr.getParameter("ver_button");
         try{
             String sender="";
@@ -413,7 +429,9 @@ public class Homepage extends MultiActionController  {
     
     @RequestMapping("/menu/enviar.htm")
     public ModelAndView menuEnviar(HttpServletRequest hsr, HttpServletResponse hsr1) throws Exception {
-        ModelAndView mv = null; 
+        ModelAndView mv = checklogin(hsr);
+         if(mv!=null)
+             return mv;
         User u = (User)(hsr.getSession().getAttribute("user"));
         if(u.getType() == 1){
             mv = new ModelAndView("redirect:/enviarmensajepadre/start.htm");
@@ -427,7 +445,9 @@ public class Homepage extends MultiActionController  {
     
     @RequestMapping("/menu/responder.htm")
     public ModelAndView menuResponder(HttpServletRequest hsr, HttpServletResponse hsr1) throws Exception {
-        ModelAndView mv = null; 
+        ModelAndView mv = checklogin(hsr);
+         if(mv!=null)
+             return mv;
         User u = (User)(hsr.getSession().getAttribute("user"));
         mv = new ModelAndView("redirect:/enviarmensajepadre/enviar.htm?reply=false&parentid="
                 + hsr.getParameter("parentid") + "&destino[]="
@@ -436,13 +456,6 @@ public class Homepage extends MultiActionController  {
                 + hsr.getParameter("NotificationMessage"));
         return mv;
     }
-
-    @RequestMapping("/menu/recibidos.htm")
-    public ModelAndView menuRecibidos(HttpServletRequest hsr, HttpServletResponse hsr1) throws Exception {
-         ModelAndView mv = new ModelAndView("menu");
-         return mv;
-    }
-
 }
 
 
