@@ -50,7 +50,7 @@
                     
                     success: function(data) {
                         var object = JSON.parse(data);
-                        var cosas = "['"+object.senderid+"']";
+                        var cosas = object.senderid;
                         $('#asuntov').empty();
                         $('#asuntov').append('<tr><td>'+object.asunto+'</td></tr>');
                         $('#senderv').empty();
@@ -383,10 +383,10 @@
                                     </tr>
                                 </c:forEach>
                             </table>     
-                            <div class="text-center">
+<!--                            <div class="text-center">
                                 <input id="fname" style="margin-bottom: 10px;" type="text">
                                 <input type="submit" value="Create Folder" class="btn btn-success" onclick="createFolder($('#fname').val())">
-                            </div>
+                            </div>-->
                         </div>
                         
                     </div>

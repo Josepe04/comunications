@@ -417,8 +417,9 @@ public class Homepage extends MultiActionController  {
         User u = (User)(hsr.getSession().getAttribute("user"));
         if(u.getType() == 1){
             mv = new ModelAndView("redirect:/enviarmensajepadre/start.htm");
-        }
-        else{
+        } else if(u.getType() == 0){
+            mv = new ModelAndView("redirect:/seleccionHijo/start.htm");
+        } else{
             mv = new ModelAndView("redirect:/enviarmensaje/start.htm?reply=false");
         }
         return mv;
@@ -429,7 +430,7 @@ public class Homepage extends MultiActionController  {
         ModelAndView mv = null; 
         User u = (User)(hsr.getSession().getAttribute("user"));
         mv = new ModelAndView("redirect:/enviarmensajepadre/enviar.htm?reply=false&parentid="
-                + hsr.getParameter("parentid") + "&destinatarios="
+                + hsr.getParameter("parentid") + "&destino[]="
                 + hsr.getParameter("destinatarios") + "&asunto="
                 + hsr.getParameter("asunto") + "&NotificationMessage="
                 + hsr.getParameter("NotificationMessage"));

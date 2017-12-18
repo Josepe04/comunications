@@ -20,17 +20,16 @@
             <h1 class="text-center">Select Child</h1>
              <fieldset>
                  <div class="col-md-2 col-md-offset-5">
-                     <form:form action="seleccionado.htm" method="POST">
-                        <c:set var="k" value="${0}"/>
-                        <c:forEach var="hijo" items="${hijos}">
-                            <div class="col-xs-12 checkbox">
-                                <label><input type="checkbox" name="${k}" value="${hijo.id}"><strong>${hijo.firstname} ${hijo.lastname}</strong></label>
-                            </div>
-                            <c:set var="k" value="${k+1}"/>
-                        </c:forEach>
-                        <input type="hidden" name="length" value="${k}">
+                    <form:form action="seleccionado.htm" method="POST">
                         <div class="col-xs-12 text-center">
-                            <input class="btn btn-primary btn-lg" type="submit" name="Submit" value="next">
+                            <!--<input type="hidden" name="length" value="0">-->
+                            <input class="btn btn-primary btn-lg" type="submit" name="submit" value="father">
+                        </div>
+                    </form:form>
+                    <form:form action="seleccionado.htm" method="POST">
+                        <div class="col-xs-12 text-center">
+                            <!--<input type="hidden" name="length" value="1">-->
+                            <input class="btn btn-primary btn-lg" type="submit" name="submit" value="Profesor">
                         </div>
                      </form:form>
                 </div>

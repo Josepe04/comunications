@@ -18,12 +18,70 @@
         <title>Students</title>
         <script>
 
-function rellenarText(){
-    var message = CKEDITOR.instances.NotificationMessage.getData();
-    $('#NotificationMessage').val(message);
-}
+    function rellenarText(){
+        var message = CKEDITOR.instances.NotificationMessage.getData();
+        $('#destino option').prop('selected',true);
+        $('#NotificationMessage').val(message);
+    }
 
- $(document).ready(function(){
+$(document).ready(function () {
+                 $('.pasar').click(function() {             
+                    var exist = false;
+                    $('#destino option').each(function() {
+                        if($('#origen option:selected').val() === $(this).val()) exist = true;
+                    });
+                    
+                    if(!exist)!$('#origen option:selected').clone().appendTo('#destino');
+                    
+                    $('#destino option').first().prop('selected',true);                     
+                    return;
+                });  
+		
+        
+                $('.quitar').click(function() {
+                    !$('#destino option:selected').remove();
+                    $('#destino option').first().prop('selected',true);
+                    
+                    var alumnosSelected = $('#destino option').length;
+                    var objectiveSelected = $('#objective').val();
+                    if(alumnosSelected === 0 || ( objectiveSelected === 0 || objectiveSelected === null || objectiveSelected === '')){
+                        $('#saveEdit').attr('disabled', true);
+                    }
+                    return;  
+                });
+		$('.pasartodos').click(function() {
+                    $('#origen option').each(function() {
+                        
+                    var valueInsert = $(this).val();
+                    var exist = false;
+                    $('#destino option').each(function() {
+                        if(valueInsert === $(this).val())exist = true;
+                    });
+
+                    if(!exist)$(this).clone().appendTo('#destino'); 
+                   
+                    var objectiveSelected = $('#objective').val();
+                    if( objectiveSelected === 0 || objectiveSelected === null || objectiveSelected === ''){
+                        $('#saveEdit').attr('disabled', true);
+                    }
+                    });
+                    
+                    var numAlum = $('#destino option').length;
+                    if(document.getElementById("objective").value !== 'Select Objective' && document.getElementById("objective").value !== '' && document.getElementById("NameLessons").value !== '' && document.getElementById("comments").value !== '' && $('#fecha input').val() !== '' && $('#horainicio input').val() !== '' && $('#horafin input').val() !== '' && numAlum > 0){
+                        $('#saveEdit').attr('disabled', false);
+                    }
+                    else{
+                        $('#saveEdit').attr('disabled', true);
+                    }
+                    
+                    $('#destino option').first().prop('selected',true);
+                });
+                
+                $('.quitartodos').click(function() {
+                    $('#destino option').each(function() { $(this).remove(); });
+                    $('#saveEdit').attr('disabled', true);
+                });
+                
      $("#tg").treegrid();
              table = $('#table_students').DataTable(
                 {
@@ -135,8 +193,9 @@ function rellenarText(){
         };
         
        
-    function selectChild(seleccion)
+    function selectChild()
     {
+        var seleccion = $( "#filter option:selected").val();
         var select = $('#check'+seleccion).is(':checked');
         $.ajax({
                 type: "POST",
@@ -146,19 +205,15 @@ function rellenarText(){
                      
                 success: function(data) {
                     var json = JSON.parse(data);
-                    if(select)
-                        $.each(json, function(i) {
-                            var asig = json[i].asignatura;
-                            if(asig===undefined)
-                                asig = "";
-                            var cosa = json[i].firstName+", "+json[i].lastName+", "+asig;
-                            table.row.add({'id': json[i].id, 'name': cosa}).draw();
-                        });
-                    else{
-                        $.each(json, function(i) {
-                            table.row({'id': json[i].id, 'name': json[i].firstName}).remove().draw();
-                        });
-                    }
+                    $('#origen').empty();
+                    $.each(json, function(i) {
+                        var asig = json[i].asignatura;
+                        if(asig===undefined)
+                            asig = "";
+                        var cosa = json[i].firstName+", "+json[i].lastName+", "+asig;
+                        $('#origen').append('<option value="'+json[i].id
+                                +'" >'+cosa+'</option>');
+                    });
                 },
                 error: function (xhr, ajaxOptions, thrownError) {
                     console.log(xhr.status);
@@ -338,29 +393,46 @@ $(function() {
       
                 <fieldset>
                     <!--                    <legend>Select student</legend>-->
-                    <div class="col-xs-9 center-block form-group" style="padding-right: 0px;">
-                        <div>
-                            <input name="destinatarios" id="destinatarios" type="hidden" ></input>
-                        </div>
-                        <div class="row"> 
-                            <div class="col-md-7">
-                                <div><label>Recipients: </label></div>
-                                <textarea readonly="readonly" id="names" style="width:60%"></textarea>
-                            </div>
-                            <div class="col-md-5" style="margin-top:6px;">
+                    <div class="form-group collapse in">
+                        <div class="col-xs-2" style="margin-top:6px;">
                                 <h2 class="text-center">Select Childs:  </h2> 
-                                <c:set var="k" value="${0}"/>
-                                <c:forEach var="hijo" items="${hijos}">
-                                    <div class="col-xs-12 checkbox">
-                                        <label><input type="checkbox" id="check${hijo.id}" name="${k}" value="${hijo.id}" onclick="selectChild(${hijo.id})"><strong>${hijo.firstname} ${hijo.lastname}</strong></label>
-                                    </div>
-                                    <c:set var="k" value="${k+1}"/>
-                                </c:forEach>
-                                <div class="col-xs-12 checkbox">
-                                        <label><input type="checkbox" id="checkstaff" name="staff" value="${hijo.id}" onclick="selectChild('staff')"><strong>staff</strong></label>
-                                </div>
+                                <select class="form-control" id="filter" style="margin-bottom: 5px;" onchange="selectChild()">
+                                    <option>select</option>
+                                    <c:forEach var="hijo" items="${hijos}">
+                                        <option value="${hijo.id}">${hijo.firstname} ${hijo.lastname}</option>
+                                    </c:forEach>
+                                    <option value="staff">staff</option>
+                                </select>
                             </div>
-                        </div>
+                                    <div class="col-xs-4">
+                                        <select class="form-control" size="20" multiple name="origen[]" id="origen" style="width: 100% !important;" >
+                                            <c:forEach var="alumnos" items="${listaAlumnos}" >
+                                                <option value="${alumnos.id_students}" >${alumnos.nombre_students}</option>
+                                            </c:forEach>
+                                        </select>
+                                    </div>
+                                    <div class="col-xs-2">
+                                        <div class="col-xs-12 text-center" style="padding-bottom: 10px; padding-top: 50px;">
+                                            <input type="button" class="btn btn-success btn-block pasar" value="add »">
+                                        </div>
+                                        <div class="col-xs-12 text-center" style="padding-bottom: 10px;">
+                                            <input type="button" class="btn btn-danger btn-block quitar" value="« remove">
+                                        </div>
+                                        <div class="col-xs-12 text-center" style="padding-bottom: 10px;">
+                                            <input type="button" class="btn btn-success btn-block pasartodos" value="add all »">
+                                        </div>
+                                        <div class="col-xs-12 text-center" style="padding-bottom: 10px;">
+                                            <input type="button" class="btn btn-danger btn-block quitartodos" value="« remove all">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xs-4">
+                                        <select class="form-control" size="20" multiple name="destino[]" id="destino" style="width: 100% !important;"> 
+
+                                        </select>
+                                    </div>
+                                </div>
+                    <div class="col-xs-9 center-block form-group" style="padding-right: 0px;">
                         <div>
                             <label class="control-label">Asunto</label> 
                         </div>
@@ -373,73 +445,26 @@ $(function() {
                         <div class="col-xs-12 text-center">
                             <input class="btn btn-primary btn-lg" type="submit" name="Submit" value="send"onclick="rellenarText()">
                         </div>
-                        
                     </div>
-                    
-                    <div class="col-xs-3">
-                        <div class="col-xs-12 studentarea">
-                            <table id="table_students" class="display" >
-                                <thead>
-                                    <tr>
-                                        <td>ID</td>
-                                        <td>Name profesors</td>
-                                    </tr>
-                                </thead>
-                                <c:forEach var="profes" items="${listaprofes}" >
-                                    <tr>
-                                        <td>${profes.id}</td>
-                                        <td>${profes.firstName} ${profes.asignatura} </td>
-                                    </tr>
-                                </c:forEach>
-                            </table>      
-                        </div>
-                    </div> 
                 </fieldset>
             </form:form>
         <div>
-            
         </div>
 </div>
         
-<div class="divLoadStudent" id="loadingmessage">
-    <div class="text-center"> 
-        <img src='../recursos/img/large_loading.gif'/>
-    </div>
-</div>
-
-<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-      </div>
-      <div class="modal-body text-center">
-       <H1><%= request.getParameter("message") %></H1>
-      </div>
-    </div>
-  </div>
-</div>
-
-              
-    <div id="modalCommentGeneral">
-            <button type="button" class="btn btn-primary btn-lg hidden" data-toggle="modal" data-target="#modalComment" id="showModalComment">
-                Launch demo modal
-            </button>   
-        <div class="modal fade" id="modalComment" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title" id="titleComment"></h4>
-                    </div>
-                </div>
-            </div>
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          </div>
+          <div class="modal-body text-center">
+           <H1><%= request.getParameter("message") %></H1>
+          </div>
         </div>
+      </div>
     </div>
-      
-      
-
-
+          
     </body>
 </html>
 

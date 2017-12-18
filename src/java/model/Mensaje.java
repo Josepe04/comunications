@@ -57,6 +57,14 @@ public class Mensaje {
     public void setDestinatarios(ArrayList<String> destinatarios) {
         this.destinatarios = destinatarios;
     }
+    
+    public void setDestinatarios(String[] destinatarios) {
+        this.destinatarios = new ArrayList<>();
+        for(String s: destinatarios){
+            this.destinatarios.add(s);
+        }
+        
+    }
 
     public ArrayList<String> getDestinatarios() {
         return destinatarios;

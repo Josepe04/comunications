@@ -8,26 +8,21 @@ package Controllers;
 import com.google.gson.Gson;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Calendar;
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import model.Hijo;
 import model.Mensaje;
 import model.Profesor;
 import model.User;
-import org.springframework.context.ApplicationContext;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.servlet.ModelAndView;
 
 /**
@@ -72,7 +67,6 @@ public class EnviarmensajePadre {
     @RequestMapping("/enviarmensajepadre/enviar.htm")
     public ModelAndView enviar( HttpServletRequest hsr, HttpServletResponse hsr1) throws Exception {
         ModelAndView mv = new ModelAndView("redirect:/menu/start.htm?folder=null");
-        String destinatarios = hsr.getParameter("destinatarios");
         String asunto = hsr.getParameter("asunto");
         String text = hsr.getParameter("NotificationMessage");
         String data = hsr.getParameter("student");
@@ -81,7 +75,7 @@ public class EnviarmensajePadre {
         String consulta;
         Mensaje m;
         User u = (User)hsr.getSession().getAttribute("user");
-        ArrayList<String> destinationList = new ArrayList<>();
+        String[] destinationList = hsr.getParameterValues("destino[]");
         ArrayList<String> folderList = new ArrayList<>();
         
         Calendar t = Calendar.getInstance();
@@ -95,9 +89,6 @@ public class EnviarmensajePadre {
         if(name.next())
             fromName = name.getString("firstname")+" "+name.getString("LastName");
         fromName = EnviarMensaje.limpiarFromName(fromName);
-        if(!destinatarios.substring(destinatarios.length()-1).equals("]"))
-            destinatarios = destinatarios+"]";
-        destinationList = (new Gson()).fromJson(destinatarios, destinationList.getClass());
         
         for(String dest:destinationList){
           ResultSet rs = Homepage.st.executeQuery("select * from folder where idpersona="+dest+" and nombre='Inbox'");
@@ -122,9 +113,9 @@ public class EnviarmensajePadre {
         for(String f:folderList){
             Homepage.st.executeUpdate("insert into msg_folder values("+msgid+","+f+")");
         }
-        for(int i=0;i<destinationList.size();i++){
+        for(int i=0;i<destinationList.length;i++){
             consulta = "insert into msg_from_to(msgid,msfrom,msto,fromname) values("+msgid+","+from+","
-                    +destinationList.get(i)+",'"+fromName+"')"; 
+                    +destinationList[i]+",'"+fromName+"')"; 
             Homepage.st.execute(consulta);
         }
         if(profesorid!=null)
