@@ -289,11 +289,14 @@
                                     columna+= '<input id="recover_button_'+json[i].id+'" onclick="recovermsg('+json[i].id+','+json[i].folderid+')" type="image" src="<c:url value="/recursos/img/btn/recover.png"/>" value="'+json[i].id+'" width="30px" data-placement="bottom" title="Recover">';
                                 if(nombre!=='Sent' && nombre!=='Litter')
                                     columna+='<input onclick="verMsg('+json[i].id+');" id="ver_button" name="ver_button" type="image" src="<c:url value="/recursos/img/btn/btn_details.svg"/>" width="30px" data-placement="bottom" title="Details">';
-                                columna+='</div>'+
-                                                '<div class="col-xs-6 sinpadding text-center">'+
+                                columna+='</div>';
+                                if(nombre!=='Sent')
+                                    columna+='<div class="col-xs-6 sinpadding text-center">'+
                                                     '<input id="borrar_button_'+json[i].id+'" onclick="borrarmsg('+anadir+','+json[i].id+','+json[i].folderid+')" class="delete" name="TXTid_lessons_eliminar" type="image" src="<c:url value="/recursos/img/btn/btn_delete.svg"/>" width="30px" data-placement="bottom" title="Delete">'+
                                                 '</div>'+
-                                        '</tr>';   
+                                        '</tr>';  
+                                else
+                                    columna+='</tr>';
                                 $('#table_id tbody').append($(columna));
                             });
                             $('#table_id').DataTable({

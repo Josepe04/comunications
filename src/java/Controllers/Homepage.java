@@ -93,7 +93,7 @@ public class Homepage extends MultiActionController  {
                    scgrpid=login.getSecurityGroupID("Communications APP");
                    result = login.fromGroup(scgrpid, user.getId());
                    if (result == true){
-//                       user.setId(10393);//padre
+                       user.setId(10393);//padre
 //                       user.setId(10332);//profe
                        setTipo(user);
                        session.setAttribute("user", user);
@@ -102,7 +102,7 @@ public class Homepage extends MultiActionController  {
                     else{
                         children=login.isparent( user.getId());    
                         if(!children.isEmpty()){
-//                            user.setId(10393);//padre
+                            user.setId(10393);//padre
 //                            user.setId(10332);//profe
                             setTipo(user);
                             session.setAttribute("user", user);

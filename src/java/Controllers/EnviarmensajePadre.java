@@ -133,12 +133,12 @@ public class EnviarmensajePadre {
         try {
             ArrayList<Integer> staffids = new ArrayList<>(); 
             ArrayList<String> classids = new ArrayList<>(); 
-            String consulta = "select StaffID, Classes.ClassID , Courses.Title from Roster inner join Classes\n" +
-                                "on Roster.ClassID = Classes.ClassID\n" +
-                                "inner join Courses on  Classes.CourseID = Courses.CourseID"+          
+            String consulta = "select StaffID, Classes.ClassID , Courses.Title from Roster inner join Classes" +
+                                " on Roster.ClassID = Classes.ClassID" +
+                                " inner join Courses on  Classes.CourseID = Courses.CourseID"+          
                                 "  where Roster.StudentID = "+id;
             ResultSet rs = Homepage.st2.executeQuery(consulta);
-            if(rs.next()){
+            while(rs.next()){
                 staffids.add(rs.getInt("StaffID"));
                 classids.add(rs.getString("Title"));
             }

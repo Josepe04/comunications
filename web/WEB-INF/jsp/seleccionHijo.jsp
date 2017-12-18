@@ -17,7 +17,7 @@
     </head>
     <body>
         <div class="container">
-            <h1 class="text-center">Select Child</h1>
+            <h1 class="text-center">what is your role?</h1>
              <fieldset>
                  <div class="col-md-2 col-md-offset-5">
                     <form:form action="seleccionado.htm" method="POST">
