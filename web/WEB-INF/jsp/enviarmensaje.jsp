@@ -205,7 +205,7 @@
                         var json = JSON.parse(data);
                         $('#pepe').remove();
                         var anadir="";
-                        if(filter===1){
+                        if(!(filter==="1")){
                             anadir = "<select class='form-control' name='levelStudent' id='pepe' style='width: 100% !important;' onchange='comboSelectionLevelStudent()'>";
                         }else{
                             anadir = "<select class='form-control' name='levelStudent' id='pepe' style='width: 100% !important;' onchange='comboSelectionClassStudent()'>";

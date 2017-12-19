@@ -118,7 +118,7 @@
                                         '<td>'+json[i].id+'</td>'+
                                         '<td>'+json[i].nombre+'</td>'+
                                         '<td>';
-                                if(json[i].nombre!=='Sent'&&json[i].nombre!=='Litter'&&json[i].nombre!=='Inbox')
+                                if(json[i].nombre!=='Sent'&&json[i].nombre!=='Trash'&&json[i].nombre!=='Inbox')
                                     columna+='<input onclick="borrarFolder('+json[i].id+')" type="image" src="<c:url value="/recursos/img/btn/borrar.svg"/>" width="30px" data-placement="bottom" title="Delete">';
                                 columna+='</td> </tr>'; 
                                 $(columna);   
@@ -164,7 +164,7 @@
                                             '</table>');
                                         $("#table_id").append($('<tbody></tbody>'));
                                         var anadir = true;
-                                        if(nombre==='Litter')
+                                        if(nombre==='Trash')
                                             anadir = false;
                                         $.each(json, function(i) {
                                             var columna = '<tr id="tr_'+json[i].id +'">'+
@@ -174,9 +174,9 @@
                                                     '<td>'+json[i].texto+'</td>'+
                                                     '<td>'+json[i].fecha+'</td>'+
                                                     '<td> <div class="col-xs-6 sinpadding text-center" >';
-                                            if(nombre === 'Litter')
+                                            if(nombre === 'Trash')
                                                 columna+= '<input id="recover_button_'+json[i].id+'" onclick="recovermsg('+json[i].id+','+json[i].folderid+')" type="image" src="<c:url value="/recursos/img/btn/recover.png"/>" value="'+json[i].id+'" width="30px" data-placement="bottom" title="Recover">';
-                                            if(nombre!=='Sent' && nombre!=='Litter')
+                                            if(nombre!=='Sent' && nombre!=='Trash')
                                                 columna+='<input onclick="verMsg('+json[i].id+');" id="ver_button" name="ver_button" type="image" src="<c:url value="/recursos/img/btn/btn_details.svg"/>" width="30px" data-placement="bottom" title="Details">';
                                             columna+='</div>'+
                                                             '<div class="col-xs-6 sinpadding text-center">'+
@@ -275,7 +275,7 @@
                                 '</table>');
                             $("#table_id").append($('<tbody></tbody>'));
                             var anadir = true;
-                            if(nombre==='Litter')
+                            if(nombre==='Trash')
                                 anadir = false;
                             $.each(json, function(i) {
                                 var columna = '<tr id="tr_'+json[i].id +'">'+
@@ -285,9 +285,9 @@
                                         '<td>'+json[i].texto+'</td>'+
                                         '<td>'+json[i].fecha+'</td>'+
                                         '<td> <div class="col-xs-6 sinpadding text-center" >';
-                                if(nombre === 'Litter')
+                                if(nombre === 'Trash')
                                     columna+= '<input id="recover_button_'+json[i].id+'" onclick="recovermsg('+json[i].id+','+json[i].folderid+')" type="image" src="<c:url value="/recursos/img/btn/recover.png"/>" value="'+json[i].id+'" width="30px" data-placement="bottom" title="Recover">';
-                                if(nombre!=='Sent' && nombre!=='Litter')
+                                if(nombre!=='Sent' && nombre!=='Trash')
                                     columna+='<input onclick="verMsg('+json[i].id+');" id="ver_button" name="ver_button" type="image" src="<c:url value="/recursos/img/btn/btn_details.svg"/>" width="30px" data-placement="bottom" title="Details">';
                                 columna+='</div>';
                                 if(nombre!=='Sent')
@@ -375,7 +375,7 @@
                                                 </c:when>    
                                                 <c:when test="${folder.nombre=='Sent'}">
                                                 </c:when>
-                                                <c:when test="${folder.nombre=='Litter'}">
+                                                <c:when test="${folder.nombre=='Trash'}">
                                                 </c:when>    
                                                 <c:otherwise>
                                                     <input onclick="borrarFolder(${folder.id})" type="image" src="<c:url value="/recursos/img/btn/borrar.svg"/>" width="30px" data-placement="bottom" title="Delete">

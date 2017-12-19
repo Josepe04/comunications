@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 import model.Hijo;
 import model.Mensaje;
 import model.Profesor;
+import model.SendMail;
 import model.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,7 +38,7 @@ public class EnviarmensajePadre {
     public String seleccionado(@RequestParam("seleccion") String id,HttpServletRequest hsr, HttpServletResponse hsr1) throws SQLException{
         ArrayList<Profesor> profesores = new ArrayList<>(); 
         if(id.equals("staff")){
-            String consulta = "select StaffID, FirstName, LastName, Email, Occupation from Staff where Faculty=0";
+            String consulta = "select StaffID, FirstName, LastName, Email, Occupation from Staff where Faculty=0 and active = 1";
             ResultSet rs = Homepage.st2.executeQuery(consulta);
             while(rs.next()){
                 //String firstName, String lastName, int id, String email,String asig
@@ -82,6 +83,7 @@ public class EnviarmensajePadre {
         User u = (User)hsr.getSession().getAttribute("user");
         String[] destinationList = hsr.getParameterValues("destino[]");
         ArrayList<String> folderList = new ArrayList<>();
+        ArrayList<String> emails = new ArrayList<>();
         
         Calendar t = Calendar.getInstance();
         String time = t.get(Calendar.YEAR)+ "-" +t.get(Calendar.MONTH)+
@@ -101,6 +103,9 @@ public class EnviarmensajePadre {
               folderList.add(rs.getString("idfolder"));
           else
               folderList.add(EnviarMensaje.createFolder(Homepage.st,dest,"Inbox"));
+          ResultSet rs2 = Homepage.st2.executeQuery("select email from person where personid="+dest);
+          if(rs2.next())
+              emails.add(rs2.getString(1));
         }
         ResultSet rs3 = Homepage.st.executeQuery("select * from folder where idpersona="+u.getId()+" and nombre='Sent'");
         if(rs3.next())
@@ -127,8 +132,8 @@ public class EnviarmensajePadre {
             m = new Mensaje(asunto,text,Integer.parseInt(profesorid),1,"chemamola");
         else
             m = new Mensaje(asunto,text,0,1,"chemamola");
-        m.setDestinatarios(destinationList);
-        //SendMail.SendMail(m);
+        m.setDestinatarios(emails);
+        SendMail.SendMail(m);
         return mv;
     }
     

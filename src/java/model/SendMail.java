@@ -44,13 +44,13 @@ public class SendMail {
         props.put("mail.smtp.auth", "true");
 //     
         Session session = Session.getDefaultInstance(props);
-        //for(String dest : m.getDestinatarios()){
+        for(String dest : m.getDestinatarios()){
             try {
                 MimeMessage message = new MimeMessage(session);
-                message.setFrom(new InternetAddress(m.getSender()));
+                message.setFrom(new InternetAddress("info.ca.pan2018"));
                 // put here if reciepient is not empty, incase the parent doe snot have an email on renweb
 
-                message.setRecipients(Message.RecipientType.TO, InternetAddress.parse("itcank@colegioalemannk.org"));//dest
+                message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(dest));//dest
                 message.setSubject(m.getAsunto());
                 message.setContent("<p> Este mensaje ha sido enviado por un sistema automático <br>"
                         + "Por favor no respondas directamente a este email.</p>"+m.getTexto(), "text/html; charset=utf-8");
@@ -73,6 +73,6 @@ public class SendMail {
             }catch (MessagingException e) {
                 throw new RuntimeException(e);
             }
-        //}
+        }
     }
 }

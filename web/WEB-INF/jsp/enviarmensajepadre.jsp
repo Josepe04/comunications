@@ -395,7 +395,7 @@ $(function() {
                     <!--                    <legend>Select student</legend>-->
                     <div class="form-group collapse in">
                         <div class="col-xs-2" style="margin-top:6px;">
-                                <h2 class="text-center">Select Childs:  </h2> 
+                                <h2 class="text-center">Filter by:  </h2> 
                                 <select class="form-control" id="filter" style="margin-bottom: 5px;" onchange="selectChild()">
                                     <option>select</option>
                                     <c:forEach var="hijo" items="${hijos}">

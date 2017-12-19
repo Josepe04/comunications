@@ -103,7 +103,7 @@ public class Homepage extends MultiActionController  {
                    scgrpid=login.getSecurityGroupID("Communications APP");
                    result = login.fromGroup(scgrpid, user.getId());
                    if (result == true){
-                       user.setId(10393);//padre
+//                       user.setId(10393);//padre
 //                       user.setId(10332);//profe
                        setTipo(user);
                        session.setAttribute("user", user);
@@ -112,7 +112,7 @@ public class Homepage extends MultiActionController  {
                     else{
                         children=login.isparent( user.getId());    
                         if(!children.isEmpty()){
-                            user.setId(10393);//padre
+//                            user.setId(10393);//padre
 //                            user.setId(10332);//profe
                             setTipo(user);
                             session.setAttribute("user", user);
@@ -195,9 +195,9 @@ public class Homepage extends MultiActionController  {
             ResultSet folder2 = st.executeQuery("select * from folder where idpersona="+u.getId()+" and nombre='Sent'");
             if(!folder2.next())
                 EnviarMensaje.createFolder(st,""+u.getId(),"Sent");
-            ResultSet folder3 = st.executeQuery("select * from folder where idpersona="+u.getId()+" and nombre='Litter'");
+            ResultSet folder3 = st.executeQuery("select * from folder where idpersona="+u.getId()+" and nombre='Trash'");
             if(!folder3.next())
-                EnviarMensaje.createFolder(st,""+u.getId(),"Litter");
+                EnviarMensaje.createFolder(st,""+u.getId(),"Trash");
             if(carpeta.equals("null")){
                 consulta = "select distinct mensaje.msgid,msg_folder.idfolder,parentid,fecha,prio,asunto,texto,msfrom,fromname"
                     + " from mensaje inner join msg_folder on mensaje.msgid=msg_folder.msgid"
@@ -307,7 +307,7 @@ public class Homepage extends MultiActionController  {
                 ResultSet rs = st.executeQuery("select * from folder where idfolder="+folderid);
                 if(rs.next())
                     idpersona=rs.getString("idpersona");
-                ResultSet rs2 = st.executeQuery("select * from folder where nombre='Litter' and idpersona="+idpersona);
+                ResultSet rs2 = st.executeQuery("select * from folder where nombre='Trash' and idpersona="+idpersona);
                 if(rs2.next())
                     idpapelera=rs2.getString("idfolder");
                 st.executeUpdate("insert into msg_folder values("+msgid+","+idpapelera+")");

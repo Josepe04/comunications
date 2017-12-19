@@ -21,6 +21,7 @@ import model.Mensaje;
 import com.google.gson.Gson;
 import java.util.Arrays;
 import java.util.Calendar;
+import model.SendMail;
 import model.User;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
@@ -349,7 +350,7 @@ public class EnviarMensaje {
         else
             m = new Mensaje(asunto,text,0,1,"chemamola");
         m.setDestinatarios(destinationEmails);
-        //SendMail.SendMail(m);
+        SendMail.SendMail(m);
         return mv;
     }
     
