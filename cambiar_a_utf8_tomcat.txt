@@ -1,8 +1,0 @@
-
-En catalina.bat:
-	set JAVA_OPTS=%JAVA_OPTS% -Dfile.encoding="UTF-8"
-	--en todos los set catalina_opts hacer
-	set CATALINA_OPTS=-Dfile.encoding="UTF-8 
-
-En server.xml:
-	<Connector port="8080" ....... URIEncoding="UTF-8"/>

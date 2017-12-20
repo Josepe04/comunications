@@ -13,7 +13,7 @@
     <head>
         <%@ include file="infouser.jsp" %>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>JSP Page</title>
+        <title>Seleccion </title>
     </head>
     <body>
         <div class="container">
