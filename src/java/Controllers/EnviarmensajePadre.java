@@ -87,7 +87,7 @@ public class EnviarmensajePadre {
         ArrayList<String> folderList = new ArrayList<>();
         ArrayList<String> emails = new ArrayList<>();
         
-        //fd
+        //  
          if(asunto.equals("") || asunto.length()>30 || text.equals("") || destinationList==null){
             mv = new ModelAndView("enviarmensaje");
             mv.addObject("error", "error");
