@@ -181,6 +181,8 @@ public class Homepage extends MultiActionController  {
     @RequestMapping("/menu/start.htm")
     public ModelAndView menu(@RequestParam("folder") String carpeta,HttpServletRequest hsr, HttpServletResponse hsr1) throws Exception {
          ModelAndView mv = checklogin(hsr);
+         String nombreFolder = "";
+         String idFolder = "";
          if(mv!=null)
              return mv;
          ArrayList<Mensaje> listaMensajes = new ArrayList<>();
@@ -199,13 +201,13 @@ public class Homepage extends MultiActionController  {
             if(!folder3.next())
                 EnviarMensaje.createFolder(st,""+u.getId(),"Trash");
             if(carpeta.equals("null")){
-                consulta = "select distinct mensaje.msgid,msg_folder.idfolder,parentid,fecha,prio,asunto,texto,msfrom,fromname"
+                consulta = "select distinct mensaje.msgid,msg_folder.idfolder,parentid,fecha,prio,asunto,texto,msfrom,fromname,folder.nombre as nombref,folder.idfolder as idf"
                     + " from mensaje inner join msg_folder on mensaje.msgid=msg_folder.msgid"
                     + " inner join folder on msg_folder.idfolder=folder.idfolder and folder.nombre='Inbox'"
                     + " inner join msg_from_to on mensaje.msgid=msg_from_to.msgid"
                     + " where folder.idpersona="+u.getId();
             }else{
-                consulta = "select distinct mensaje.msgid,msg_folder.idfolder,parentid,fecha,prio,asunto,texto,msfrom,fromname"
+                consulta = "select distinct mensaje.msgid,msg_folder.idfolder,parentid,fecha,prio,asunto,texto,msfrom,fromname,folder.nombre as nombref,folder.idfolder as idf"
                     + " from mensaje inner join msg_folder on mensaje.msgid=msg_folder.msgid"
                     + " inner join folder on msg_folder.idfolder=folder.idfolder and folder.idfolder="+carpeta
                     + " inner join msg_from_to on mensaje.msgid=msg_from_to.msgid"
@@ -213,6 +215,8 @@ public class Homepage extends MultiActionController  {
             }
             ResultSet rs = st.executeQuery(consulta);
             while(rs.next()){
+                idFolder = rs.getString("idf");
+                nombreFolder = rs.getString("nombref");
                 String text = rs.getString("texto");
                 if(text.length()>20)
                     text = recolocar(text.substring(0, 20));
@@ -231,6 +235,8 @@ public class Homepage extends MultiActionController  {
          }
          mv.addObject("lista", listaMensajes);
          mv.addObject("folders", listaFolders);
+         mv.addObject("nombrefolder",nombreFolder);
+         mv.addObject("idfolder",idFolder);
          return mv;
     }
     
@@ -276,6 +282,18 @@ public class Homepage extends MultiActionController  {
 
         }
         return new Gson().toJson(listaMensajes);
+    }
+    
+    @RequestMapping("/menu/changemsgfolder.htm")
+    @ResponseBody
+    public String changeMsgFolder(@RequestParam("idfolder") String idfolder,@RequestParam("idmsg") String idmsg,@RequestParam("idfolder2") String idfolder2 ,HttpServletRequest hsr, HttpServletResponse hsr1) throws SQLException{
+        try{
+            st.executeUpdate("delete from msg_folder where msgid="+idmsg+" and idfolder="+idfolder);
+            st.executeUpdate("insert into msg_folder values("+idmsg+","+idfolder2+")");
+        }catch(SQLException e){
+            return "0";
+        }
+        return "1";
     }
     
     @RequestMapping("/menu/borrarmsg.htm")
@@ -338,7 +356,17 @@ public class Homepage extends MultiActionController  {
     @ResponseBody
     public String borrarCarpeta (@RequestParam("id") String id, HttpServletRequest hsr, HttpServletResponse hsr1) throws SQLException{
         try{
+            String idtrash = "";
+            User us = (User)hsr.getSession().getAttribute("user");
+            ResultSet rs = st.executeQuery("select * from folder where nombre ='Trash' and idpersona="
+                    +us.getId());
+            if(rs.next())
+                idtrash = rs.getString("idfolder");
             st.executeUpdate("delete from folder where idfolder="+id);
+            ResultSet rs2 = st.executeQuery("select * from msg_folder where idfolder="+id);
+            while(rs2.next()){
+                st.executeUpdate("insert into msg_folder values("+rs2.getString("msgid")+","+idtrash+")");
+            }
             st.executeUpdate("delete from msg_folder where idfolder="+id);
         }catch(SQLException e){
             System.err.println("error al borrar:"+id);

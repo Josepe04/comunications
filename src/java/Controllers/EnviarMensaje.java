@@ -19,7 +19,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import model.Mensaje;
 import com.google.gson.Gson;
-import java.util.Arrays;
 import java.util.Calendar;
 import model.SendMail;
 import model.User;
@@ -154,6 +153,8 @@ public class EnviarMensaje {
         String[] levelid = hsr.getParameterValues("nivel");
         String test = hsr.getParameter("levelStudent");
         studentsgrades =this.getStudentsclass(levelid[0]);
+        char c = studentsgrades.get(5).getNombre_students().charAt(8);
+        String pr = Integer.toHexString((int) c);
         String data=new Gson().toJson(studentsgrades);
         return data;
     }
@@ -381,10 +382,18 @@ public class EnviarMensaje {
             StringWriter errors = new StringWriter();
             ex.printStackTrace(new PrintWriter(errors));
         }
-       
         return listaAlumnos;
     }
     
+    public static String convertFromUTF8(String s) {
+        String out = null;
+        try {
+            out = new String(s.getBytes("ISO-8859-1"), "UTF-8");
+        } catch (java.io.UnsupportedEncodingException e) {
+            return null;
+        }
+        return out;
+    }
     
     
 }

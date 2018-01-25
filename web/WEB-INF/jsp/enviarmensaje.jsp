@@ -4,7 +4,8 @@
     Author     : Norhan
 --%>
 
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%--<%@page contentType="text/html" pageEncoding="UTF-8"%>--%>
+<%@ page contentType="text/html;charset=UTF-8" %>
 <%@taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@taglib prefix="spring" uri="http://www.springframework.org/tags"%>
@@ -262,11 +263,15 @@
                     url: "studentclassLevel.htm?nivel=" + nivel,
                     data: nivel,
                     dataType: 'text',
+                    contentType:'charset:utf-8',
                     success: function (data) {
+                        //var data2 = utf8_encode(data);
+                        console.log(data);
                         var json = JSON.parse(data);
                         //var table = $('#table_students').DataTable();
                         $('#origen').empty();
                         $.each(json, function (i) {
+                            console.log(json[i].nombre_students);
                             $('#origen').append('<option value="'+json[i].id_students
                                     +'" >'+json[i].nombre_students+'</option>');
                         });

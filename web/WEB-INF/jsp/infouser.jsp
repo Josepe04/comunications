@@ -9,6 +9,7 @@
 <%@taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 
 <head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/png" href="<c:url value="/recursos/img/iconos/favicon.ico" />" >
     <link rel="apple-touch-icon" href="<c:url value="/recursos/img/iconos/favicon.ico"/>">
