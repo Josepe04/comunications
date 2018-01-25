@@ -19,71 +19,79 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>Send Message </title>
         <script>
-            
+
             function rellenarText() {
                 var message = CKEDITOR.instances.NotificationMessage.getData();
-                $('#destino option').prop('selected',true);
+                $('#destino option').prop('selected', true);
                 $('#NotificationMessage').val(message);
             }
 
+
             $(document).ready(function () {
-                 $('.pasar').click(function() {             
+                arrayTotalAlumnos = $("#origen option");
+
+                $('.pasar').click(function () {
                     var exist = false;
-                    $('#destino option').each(function() {
-                        if($('#origen option:selected').val() === $(this).val()) exist = true;
-                    });
-                    
-                    if(!exist)!$('#origen option:selected').clone().appendTo('#destino');
-                    
-                    $('#destino option').first().prop('selected',true);                     
-                    return;
-                });  
-		
-        
-                $('.quitar').click(function() {
-                    !$('#destino option:selected').remove();
-                    $('#destino option').first().prop('selected',true);
-                    
-                    var alumnosSelected = $('#destino option').length;
-                    var objectiveSelected = $('#objective').val();
-                    if(alumnosSelected === 0 || ( objectiveSelected === 0 || objectiveSelected === null || objectiveSelected === '')){
-                        $('#saveEdit').attr('disabled', true);
-                    }
-                    return;  
-                });
-		$('.pasartodos').click(function() {
-                    $('#origen option').each(function() {
-                        
-                    var valueInsert = $(this).val();
-                    var exist = false;
-                    $('#destino option').each(function() {
-                        if(valueInsert === $(this).val())exist = true;
+                    $('#destino option').each(function () {
+                        if ($('#origen option:selected').val() === $(this).val())
+                            exist = true;
                     });
 
-                    if(!exist)$(this).clone().appendTo('#destino'); 
-                   
-                    var objectiveSelected = $('#objective').val();
-                    if( objectiveSelected === 0 || objectiveSelected === null || objectiveSelected === ''){
-                        $('#saveEdit').attr('disabled', true);
-                    }
-                    });
-                    
-                    var numAlum = $('#destino option').length;
-                    if(document.getElementById("objective").value !== 'Select Objective' && document.getElementById("objective").value !== '' && document.getElementById("NameLessons").value !== '' && document.getElementById("comments").value !== '' && $('#fecha input').val() !== '' && $('#horainicio input').val() !== '' && $('#horafin input').val() !== '' && numAlum > 0){
-                        $('#saveEdit').attr('disabled', false);
-                    }
-                    else{
-                        $('#saveEdit').attr('disabled', true);
-                    }
-                    
-                    $('#destino option').first().prop('selected',true);
+                    if (!exist)
+                        !$('#origen option:selected').clone().appendTo('#destino');
+
+                    $('#destino option').first().prop('selected', true);
+                    return;
                 });
-                
-                $('.quitartodos').click(function() {
-                    $('#destino option').each(function() { $(this).remove(); });
+
+
+                $('.quitar').click(function () {
+                    !$('#destino option:selected').remove();
+                    $('#destino option').first().prop('selected', true);
+
+                    var alumnosSelected = $('#destino option').length;
+                    var objectiveSelected = $('#objective').val();
+                    if (alumnosSelected === 0 || (objectiveSelected === 0 || objectiveSelected === null || objectiveSelected === '')) {
+                        $('#saveEdit').attr('disabled', true);
+                    }
+                    return;
+                });
+                $('.pasartodos').click(function () {
+                    $('#origen option').each(function () {
+
+                        var valueInsert = $(this).val();
+                        var exist = false;
+                        $('#destino option').each(function () {
+                            if (valueInsert === $(this).val())
+                                exist = true;
+                        });
+
+                        if (!exist)
+                            $(this).clone().appendTo('#destino');
+
+                        var objectiveSelected = $('#objective').val();
+                        if (objectiveSelected === 0 || objectiveSelected === null || objectiveSelected === '') {
+                            $('#saveEdit').attr('disabled', true);
+                        }
+                    });
+
+                    var numAlum = $('#destino option').length;
+                    if (document.getElementById("objective").value !== 'Select Objective' && document.getElementById("objective").value !== '' && document.getElementById("NameLessons").value !== '' && document.getElementById("comments").value !== '' && $('#fecha input').val() !== '' && $('#horainicio input').val() !== '' && $('#horafin input').val() !== '' && numAlum > 0) {
+                        $('#saveEdit').attr('disabled', false);
+                    } else {
+                        $('#saveEdit').attr('disabled', true);
+                    }
+
+                    $('#destino option').first().prop('selected', true);
+                });
+
+                $('.quitartodos').click(function () {
+                    $('#destino option').each(function () {
+                        $(this).remove();
+                    });
                     $('#saveEdit').attr('disabled', true);
                 });
-                
+
                 $("#tg").treegrid();
                 table = $('#table_students').DataTable(
                         {
@@ -125,8 +133,15 @@
 
 
                 });
-
-
+                $('option').on('click', function () {
+                    var ss = 2;
+                    if ($("#pepe :selected").text() === "Select level" || $("#pepe :selected").text() === "Select class") {
+                        $("#origen").empty();
+                        for (var i = 0, l = arrayTotalAlumnos.length; i < l; i++) {
+                            $("#origen").append(arrayTotalAlumnos[i])
+                        }
+                    }
+                })
             });
 
 
@@ -194,10 +209,11 @@
             }
             ;
 
-            
-            function comboSelectFilter(){
+
+            function comboSelectFilter() {
                 var filter = $('#filter').val();
-                 $.ajax({
+
+                $.ajax({
                     type: "POST",
                     url: "filter.htm?seleccion=" + filter,
                     data: filter,
@@ -205,16 +221,16 @@
                     success: function (data) {
                         var json = JSON.parse(data);
                         $('#pepe').remove();
-                        var anadir="";
-                        if(!(filter==="1")){
+                        var anadir = "";
+                        if (!(filter === "1")) {
                             anadir = "<select class='form-control' name='levelStudent' id='pepe' style='width: 100% !important;' onchange='comboSelectionLevelStudent()'>";
-                        }else{
+                        } else {
                             anadir = "<select class='form-control' name='levelStudent' id='pepe' style='width: 100% !important;' onchange='comboSelectionClassStudent()'>";
                         }
                         $.each(json, function (i) {
-                            anadir+="<option value='"+json[i].id+"'>"+json[i].name+"</option>";
+                            anadir += "<option value='" + json[i].id + "'>" + json[i].name + "</option>";
                         });
-                        anadir+="</select>";
+                        anadir += "</select>";
                         $('#filtro').append(anadir);
                     },
                     error: function (xhr, ajaxOptions, thrownError) {
@@ -230,61 +246,73 @@
             {
 
                 var nivel = $('#pepe').val();
-                $.ajax({
-                    type: "POST",
-                    url: "studentlistLevel.htm?nivel=" + nivel,
-                    data: nivel,
-                    dataType: 'text',
-                    success: function (data) {
-                        var json = JSON.parse(data);
-                        //var table = $('#table_students').DataTable();
-                        $('#origen').empty();
-                        $.each(json, function (i) {
-                            $('#origen').append('<option value="'+json[i].id_students
-                                    +'" >'+json[i].nombre_students+'</option>');
-                        });
+                if (nivel !== "" && nivel !== "undefined") {
+                    $.ajax({
+                        type: "POST",
+                        url: "studentlistLevel.htm?nivel=" + nivel,
+                        data: nivel,
+                        dataType: 'text',
+                        success: function (data) {
+                            var json = JSON.parse(data);
+                            //var table = $('#table_students').DataTable();
+                            $('#origen').empty();
+                            $.each(json, function (i) {
+                                $('#origen').append('<option value="' + json[i].id_students
+                                        + '" >' + json[i].nombre_students + '</option>');
+                            });
 
-                    },
-                    error: function (xhr, ajaxOptions, thrownError) {
-                        console.log(xhr.status);
-                        console.log(xhr.responseText);
-                        console.log(thrownError);
+                        },
+                        error: function (xhr, ajaxOptions, thrownError) {
+                            console.log(xhr.status);
+                            console.log(xhr.responseText);
+                            console.log(thrownError);
+                        }
+
+                    });
+                } else {
+                    $("#origen").empty();
+                    for (var i = 0, l = arrayTotalAlumnos.length; i < l; i++) {
+                        $("#origen").append(arrayTotalAlumnos[i])
                     }
-
-                });
-
+                }
             }
-            
+
             function comboSelectionClassStudent()
             {
                 var nivel = $('#pepe').val();
-                $.ajax({
-                    type: "POST",
-                    url: "studentclassLevel.htm?nivel=" + nivel,
-                    data: nivel,
-                    dataType: 'text',
-                    contentType:'charset:utf-8',
-                    success: function (data) {
-                        //var data2 = utf8_encode(data);
-                        console.log(data);
-                        var json = JSON.parse(data);
-                        //var table = $('#table_students').DataTable();
-                        $('#origen').empty();
-                        $.each(json, function (i) {
-                            console.log(json[i].nombre_students);
-                            $('#origen').append('<option value="'+json[i].id_students
-                                    +'" >'+json[i].nombre_students+'</option>');
-                        });
+                if (nivel !== "" && nivel !== "undefined") {
+                    $.ajax({
+                        type: "POST",
+                        url: "studentclassLevel.htm?nivel=" + nivel,
+                        data: nivel,
+                        dataType: 'text',
+                        contentType: 'charset:utf-8',
+                        success: function (data) {
+                            //var data2 = utf8_encode(data);
+                            //console.log(data);
+                            var json = JSON.parse(data);
+                            //var table = $('#table_students').DataTable();
+                            $('#origen').empty();
+                            $.each(json, function (i) {
+                                //console.log(json[i].nombre_students);
+                                $('#origen').append('<option value="' + json[i].id_students
+                                        + '" >' + json[i].nombre_students + '</option>');
+                            });
 
-                    },
-                    error: function (xhr, ajaxOptions, thrownError) {
-                        console.log(xhr.status);
-                        console.log(xhr.responseText);
-                        console.log(thrownError);
+                        },
+                        error: function (xhr, ajaxOptions, thrownError) {
+                            console.log(xhr.status);
+                            console.log(xhr.responseText);
+                            console.log(thrownError);
+                        }
+
+                    });
+                } else {
+                    $("#origen").empty();
+                    for (var i = 0, l = arrayTotalAlumnos.length; i < l; i++) {
+                        $("#origen").append(arrayTotalAlumnos[i])
                     }
-
-                });
-
+                }
             }
 
             function comboSelectionLevel()
@@ -457,7 +485,7 @@
                         <div>
                             <input name="destinatarios" id="destinatarios" type="hidden" ></input>
                         </div>
-                        
+
                         <div id="selector_de_alumnos" class="col-xs-12">
                             <div class="form-group collapse in" id="contenedorStudents">
                                 <div class="col-xs-12">
@@ -478,7 +506,7 @@
                                         </c:choose>
                                     </div>
                                 </div>
-                                
+
                                 <div class="form-group collapse in">
                                     <div class="col-xs-2" id="filtro">
                                         <select class="form-control" id="pepe" style="width: 100% !important;" onchange="comboSelectionClassStudent()">
@@ -518,7 +546,7 @@
                             </div>
                         </div>
                         <div class="col-xs-12" style="margin-top: 40px;">
-                                <label class="control-label">Asunto</label> 
+                            <label class="control-label">Asunto</label> 
                             <div class="col-xs-12">
                                 <textarea name="asunto" id="asunto" rows="1" cols="40"></textarea>
                             </div>
@@ -553,11 +581,11 @@
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <button onclick="location.href='start.htm';" type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <button onclick="location.href = 'start.htm';" type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                         <!--        <h4 class="modal-title" id="myModalLabel">Modal title</h4>-->
                     </div>
                     <div class="modal-body text-center">
-                        <H1>eror</H1>
+                        <H1>error</H1>
                     </div>
                 </div>
             </div>

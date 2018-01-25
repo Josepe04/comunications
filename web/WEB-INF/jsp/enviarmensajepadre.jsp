@@ -448,10 +448,21 @@ $(function() {
                     </div>
                 </fieldset>
             </form:form>
-        <div>
-        </div>
+      
 </div>
         
+        <div class="divLoadStudent" id="loadingmessage">
+            <div class="text-center"> 
+                <img src='../recursos/img/large_loading.gif'/>
+            </div>
+        </div>
+        <c:if test="${error=='error'}">
+            <script>
+                $(document).ready(function () {
+                    $('#myModal').modal('show');
+                });
+            </script>
+        </c:if>
     <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
       <div class="modal-dialog" role="document">
         <div class="modal-content">

@@ -79,15 +79,23 @@ public class EnviarmensajePadre {
         String profesorid = hsr.getParameter("parentid");
         String msgid = "";
         String consulta;
+        
+         
         Mensaje m;
         User u = (User)hsr.getSession().getAttribute("user");
         String[] destinationList = hsr.getParameterValues("destino[]");
         ArrayList<String> folderList = new ArrayList<>();
         ArrayList<String> emails = new ArrayList<>();
         
+        
+         if(asunto.equals("") || asunto.length()>30 || text.equals("") || destinationList==null){
+            mv = new ModelAndView("enviarmensaje");
+            mv.addObject("error", "error");
+            return mv;
+        }
         Calendar t = Calendar.getInstance();
-        String time = t.get(Calendar.YEAR)+ "-" +t.get(Calendar.MONTH)+
-                    "-"+t.get(Calendar.DAY_OF_MONTH)+" "+t.get(Calendar.HOUR)+":"+
+        String time = t.get(Calendar.YEAR)+ "-" +(t.get(Calendar.MONTH)+1)+
+                    "-"+t.get(Calendar.DAY_OF_MONTH)+" "+t.get(Calendar.HOUR_OF_DAY)+":"+
                     t.get(Calendar.MINUTE)+":"+t.get(Calendar.SECOND);
         
         String from = ""+((User)hsr.getSession().getAttribute("user")).getId();

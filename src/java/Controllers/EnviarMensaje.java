@@ -58,9 +58,7 @@ public class EnviarMensaje {
             p2 = Integer.parseInt(parameter2);
         mv = new ModelAndView("enviarmensaje");
         List <Level> grades = new ArrayList();
-        
-        
-        
+         
         try{
             mv.addObject("listaAlumnos", this.getStudents());
             ResultSet rs;
@@ -270,8 +268,8 @@ public class EnviarMensaje {
     public ModelAndView enviar( HttpServletRequest hsr, HttpServletResponse hsr1) throws Exception {
         ModelAndView mv = Homepage.checklogin(hsr);
          if(mv!=null)
-             return mv;
-        mv = new ModelAndView("redirect:/menu/start.htm?folder=null");
+             return mv;  
+        
         String[] destinationListAux = hsr.getParameterValues("destino[]");
         String asunto = hsr.getParameter("asunto");
         String text = hsr.getParameter("NotificationMessage");
@@ -291,8 +289,9 @@ public class EnviarMensaje {
         ArrayList<String> destinationEmails = new ArrayList<>();
         ArrayList<String> folderList = new ArrayList<>();
         Calendar t = Calendar.getInstance();
-        String time = t.get(Calendar.YEAR)+ "-" +t.get(Calendar.MONTH)+
-                    "-"+t.get(Calendar.DAY_OF_MONTH)+" "+t.get(Calendar.HOUR)+":"+
+        
+        String time = t.get(Calendar.YEAR)+ "-" +(t.get(Calendar.MONTH)+1)+
+                    "-"+t.get(Calendar.DAY_OF_MONTH)+" "+t.get(Calendar.HOUR_OF_DAY)+":"+
                     t.get(Calendar.MINUTE)+":"+t.get(Calendar.SECOND);
         for(String dest:destinationListAux){
             consulta = "select ps.parentid, ps.relationship, p.firstname as name, p.lastname as lname, ISNULL(p.Email, 0) as mail"
@@ -352,7 +351,8 @@ public class EnviarMensaje {
             m = new Mensaje(asunto,text,0,1,"chemamola");
         m.setDestinatarios(destinationEmails);
         SendMail.SendMail(m);
-        return mv;
+        
+        return start(hsr,hsr1);
     }
     
     public ArrayList<Students> getStudents() throws SQLException
