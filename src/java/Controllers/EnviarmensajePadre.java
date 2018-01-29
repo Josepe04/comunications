@@ -38,7 +38,7 @@ public class EnviarmensajePadre {
     public String seleccionado(@RequestParam("seleccion") String id,HttpServletRequest hsr, HttpServletResponse hsr1) throws SQLException{
         ArrayList<Profesor> profesores = new ArrayList<>(); 
         if(id.equals("staff")){
-            String consulta = "select StaffID, FirstName, LastName, Email, Occupation from Staff where Faculty=0 and active = 1";
+            String consulta = "select StaffID, FirstName, LastName, Email, Occupation from Staff where Administrator=1 and active = 1";
             ResultSet rs = Homepage.st2.executeQuery(consulta);
             while(rs.next()){
                 //String firstName, String lastName, int id, String email,String asig

@@ -84,6 +84,7 @@ public class Homepage extends MultiActionController  {
             ArrayList<Students> children ;
             LoginVerification login = new LoginVerification();
             ModelAndView mv = new ModelAndView("redirect:/menu/start.htm?folder=null");
+            
 //            setTipo(user);//borrar
 //            session.setAttribute("user", user); //borrar
             String txtusuario = hsr.getParameter("txtusuario");
@@ -100,15 +101,54 @@ public class Homepage extends MultiActionController  {
                 }
                 //if the user is not part of the group
                 else{
-                   scgrpid=login.getSecurityGroupID("Communications APP");
-                   result = login.fromGroup(scgrpid, user.getId());
-                   if (result == true){
+                    scgrpid=login.getSecurityGroupID("Communications APP");
+                    result = login.fromGroup(scgrpid, user.getId());
+                    String consulta = "select * from pwb.DesignConfig";
+                    DriverManagerDataSource dataSource2 = (DriverManagerDataSource)this.getBean("dataSourceAH",hsr.getServletContext());
+                    Connection co = dataSource2.getConnection();
+                    Statement st3 = co.createStatement();
+                    ResultSet rs = st3.executeQuery(consulta);
+                    String LeftMenuHeaderColor = "";
+                    String leftmenubackground = "";
+                    String oddrowbackground = "";
+                    while(rs.next()){
+                        LeftMenuHeaderColor = rs.getString("LeftMenuHeaderColor");
+                        leftmenubackground = rs.getString("leftmenubackground");
+                        oddrowbackground = rs.getString("oddrowbackground");
+                    }
+                    String estilo = "#infousuario{background-image: url(https://ca-pan.client.renweb.com/pw/design/ca-pan/header%20color960.png);background-repeat: repeat-y; background-color:white;}"+
+                        "#table_folders>tbody>tr:nth-child(odd)>td," +
+                        "#table_folders>tbody>tr:nth-child(odd)>th {" +
+                        "background-color: white;" +
+                        "}" +
+                        "#table_folders>tbody>tr:nth-child(even)>td," +
+                        "#table_folders>tbody>tr:nth-child(even)>th {" +
+                        "background-color: #"+oddrowbackground+";" +
+                        "}" +
+                        "#table_folders>thead>tr>th {" +
+                        "background-color: #"+leftmenubackground+";" +
+                        "}"+
+                        "#table_id>tbody>tr:nth-child(odd)>td," +
+                        "#table_id>tbody>tr:nth-child(odd)>th {" +
+                        "background-color: white;" +
+                        "}" +
+                        "#table_id>tbody>tr:nth-child(even)>td," +
+                        "#table_id>tbody>tr:nth-child(even)>th {" +
+                        "background-color: #"+oddrowbackground+";" +
+                        "}" +
+                        "#table_id>thead>tr>th {" +
+                        "background-color: #"+leftmenubackground+";" +
+                        "}"+
+                        ".form-control{background-color:#"+leftmenubackground+"}"+ 
+                        "#tabla_carpetas{background-color:#"+leftmenubackground+"}";
+                    session.setAttribute("estilo", estilo);
+                    if (result == true){
 //                       user.setId(10393);//padre
 //                       user.setId(10332);//profe
-                       setTipo(user);
-                       session.setAttribute("user", user);
-                       return mv;
-                   }
+                        setTipo(user);
+                        session.setAttribute("user", user);
+                        return mv;
+                    }
                     else{
                         children=login.isparent( user.getId());    
                         if(!children.isEmpty()){

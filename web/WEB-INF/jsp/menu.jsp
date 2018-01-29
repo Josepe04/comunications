@@ -391,6 +391,11 @@
             }
             
         </script>
+        <style>
+            #tabla_carpetas{
+                border: 1px solid #ccc!important;
+            }
+        </style>
     </head>
     <body>
         <div class="container">

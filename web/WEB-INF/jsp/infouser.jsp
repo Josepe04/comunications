@@ -70,7 +70,8 @@
     <%--        <link rel="stylesheet" type="text/css" href="<c:url value="/recursos/css/dataTables/dataTables.uikit.css"/>" />--%>
     <link rel="stylesheet" type="text/css" href="<c:url value="/recursos/css/dataTables/jquery.dataTables.css"/>" />
     <link rel="stylesheet" type="text/css" href="<c:url value="/recursos/css/dataTables/jquery.dataTables_themeroller.css"/>" />
-
+    <link rel="stylesheet" type="text/css" href="<c:url value="/recursos/css/schoolconfig.css"/>" />
+    
     <script type="text/javascript" src="<c:url value="/recursos/js/dataTables/jquery.dataTables.js"/>" ></script>
     <script type="text/javascript" src="<c:url value="/recursos/js/dataTables/dataTables.bootstrap.js"/>" ></script>
     <script type="text/javascript" src="<c:url value="/recursos/js/dataTables/dataTables.bootstrap4.js"/>" ></script>
@@ -80,13 +81,14 @@
     <script type="text/javascript" src="<c:url value="/recursos/js/dataTables/dataTables.jqueryui.js"/>" ></script>
     <script type="text/javascript" src="<c:url value="/recursos/js/dataTables/dataTables.material.js"/>" ></script>
     <script type="text/javascript" src="<c:url value="/recursos/js/dataTables/dataTables.uikit.js"/>" ></script>
+    <style>${estilo}</style>
 </head>
 
-<div class="infousuario noPrint">
+<div class="infousuario noPrint" id="infousuario">
     <div class="col-xs-3">
     </div>
     <div class="col-xs-7">
-        <h1 class="text-center">Hi, <c:out value="${sessionScope.user.name}"/></h1>
+        <!--<h1 class="text-center">Hi, <c:out value="${sessionScope.user.name}"/></h1>-->
     </div>
     
     <div class="col-xs-2 text-right">

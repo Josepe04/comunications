@@ -195,6 +195,7 @@ $(document).ready(function () {
        
     function selectChild()
     {
+        $('#destino').empty();
         var seleccion = $( "#filter option:selected").val();
         var select = $('#check'+seleccion).is(':checked');
         $.ajax({
