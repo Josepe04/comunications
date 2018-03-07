@@ -399,7 +399,7 @@
     </head>
     <body>
         <div class="container">
-            <h1 class="text-center">Menu</h1>
+            <h1 class="text-center" id="toplevel">Menu</h1>
             <fieldset>
                 <div class="row uk-grid dt-merge-grid" style="padding-right: 0px;">
                     <div class="col-xs-3">

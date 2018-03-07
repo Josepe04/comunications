@@ -111,12 +111,19 @@ public class Homepage extends MultiActionController  {
                     String LeftMenuHeaderColor = "";
                     String leftmenubackground = "";
                     String oddrowbackground = "";
+                    String toplevelb = "";
+                    String toplevelc = "";
                     while(rs.next()){
                         LeftMenuHeaderColor = rs.getString("LeftMenuHeaderColor");
                         leftmenubackground = rs.getString("leftmenubackground");
                         oddrowbackground = rs.getString("oddrowbackground");
+                        toplevelb = rs.getString("contentheadbackgroundfrom");
+                        toplevelc = rs.getString("contentheadcolor");
                     }
-                    String estilo = "#infousuario{background-image: url(https://ca-pan.client.renweb.com/pw/design/ca-pan/header%20color960.png);background-repeat: repeat-y; background-color:white;}"+
+                    String estilo = "#infousuario{background-position: center; background-image: url(https://ca-pan.client.renweb.com/pw/design/ca-pan/header%20color960.png);background-repeat: repeat-y; background-color:white;}"+
+                        "#toplevel{background-color:#"+toplevelb+";"+
+                        "color:#"+toplevelc+";"+
+                        "}"+
                         "#table_folders>tbody>tr:nth-child(odd)>td," +
                         "#table_folders>tbody>tr:nth-child(odd)>th {" +
                         "background-color: white;" +
