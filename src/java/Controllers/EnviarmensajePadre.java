@@ -139,7 +139,7 @@ public class EnviarmensajePadre {
         if(profesorid!=null)
             m = new Mensaje(asunto,text,Integer.parseInt(profesorid),1,"chemamola");
         else
-            m = new Mensaje(asunto,text,0,1,"chemamola");
+            m = new Mensaje("Mensaje de "+fromName+": "+asunto,text,0,1,"chemamola");
         m.setDestinatarios(emails);
         SendMail.SendMail(m);
         return mv;

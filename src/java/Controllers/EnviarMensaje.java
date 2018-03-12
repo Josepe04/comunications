@@ -346,9 +346,9 @@ public class EnviarMensaje {
             Homepage.st.executeUpdate(consulta);
         }
         if(parentid!=null)
-            m = new Mensaje(asunto,text,Integer.parseInt(parentid),1,"chemamola");
+            m = new Mensaje("Mensaje de "+fromName+": "+asunto,text,Integer.parseInt(parentid),1,"chemamola");
         else
-            m = new Mensaje(asunto,text,0,1,"chemamola");
+            m = new Mensaje("Mensaje de "+fromName+" "+asunto,text,0,1,"chemamola");
         m.setDestinatarios(destinationEmails);
         SendMail.SendMail(m);
         

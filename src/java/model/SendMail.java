@@ -52,8 +52,8 @@ public class SendMail {
 
                 message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(dest));//dest
                 message.setSubject(m.getAsunto());
-                message.setContent("<p> Este mensaje ha sido enviado por un sistema automático <br>"
-                        + "Por favor no respondas directamente a este email.</p>"+m.getTexto(), "text/html; charset=utf-8");
+                message.setContent(m.getTexto()+"<p> Este mensaje ha sido enviado por un sistema automático <br>"
+                        + "Por favor no respondas directamente a este email.</p>", "text/html; charset=utf-8");
             //    message.setText(m.getBody());
 
 
