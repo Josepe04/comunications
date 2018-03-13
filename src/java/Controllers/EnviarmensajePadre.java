@@ -76,7 +76,7 @@ public class EnviarmensajePadre {
         String asunto = hsr.getParameter("asunto");
         String text = hsr.getParameter("NotificationMessage");
         String data = hsr.getParameter("student");
-        String profesorid = hsr.getParameter("parentid");
+        String parentmsgid = hsr.getParameter("parentid");
         String msgid = "";
         String consulta;
         
@@ -136,10 +136,10 @@ public class EnviarmensajePadre {
                     +destinationList[i]+",'"+fromName+"')"; 
             Homepage.st.execute(consulta);
         }
-        if(profesorid!=null)
-            m = new Mensaje(asunto,text,Integer.parseInt(profesorid),1,"chemamola");
+        if(parentmsgid!=null)
+            m = new Mensaje("Mensaje de "+fromName+": "+asunto,text,Integer.parseInt(parentmsgid),1);
         else
-            m = new Mensaje("Mensaje de "+fromName+": "+asunto,text,0,1,"chemamola");
+            m = new Mensaje("Mensaje de "+fromName+": "+asunto,text,0,1);
         m.setDestinatarios(emails);
         SendMail.SendMail(m);
         return mv;

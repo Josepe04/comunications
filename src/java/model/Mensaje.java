@@ -144,12 +144,11 @@ public class Mensaje {
         this.fecha = fecha;
     }
     
-    public Mensaje(String asunto, String texto, int parentid, int prio, String sender) {
+    public Mensaje(String asunto, String texto, int parentid, int prio) {
         this.asunto = asunto;
         this.texto = texto;
         this.prio = prio;
         this.parentid = parentid;
-        this.sender = sender;
     }
    
     

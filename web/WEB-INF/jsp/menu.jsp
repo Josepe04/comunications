@@ -84,6 +84,7 @@
                         var cosas = object.senderid;
                         $('#asuntov').empty();
                         $('#asuntov').append('<tr><td>'+object.asunto+'</td></tr>');
+                        $('#asuntodiv').append('<input type="hidden" name="asunto" id="asunto" value="'+object.asunto+'">');
                         $('#senderv').empty();
                         $('#senderv').append('<tr><td>'+object.sender+'</td></tr>');
                         $('#replydata').empty();
@@ -191,7 +192,7 @@
                                             '<thead>'+
                                                 '<tr>'+
                                                     '<td>id</td>'+
-                                                    '<td>Asunto</td>'+
+                                                    '<td>Subject</td>'+
                                                     '<td>Sender</td>'+
                                                     '<td>Resume</td>'+
                                                     '<td>Date</td>'+
@@ -305,7 +306,7 @@
                                 '<thead>'+
                                     '<tr>'+
                                         '<td>id</td>'+
-                                        '<td>Asunto</td>'+
+                                        '<td>Subject</td>'+
                                         '<td>Sender</td>'+
                                         '<td>Resume</td>'+
                                         '<td>Date</td>'+
@@ -445,7 +446,7 @@
                                 <thead>
                                     <tr>
                                         <td>id</td>
-                                        <td>Asunto</td>
+                                        <td>Subject</td>
                                         <td>Sender</td>
                                         <td>Resume</td>
                                         <td>Date</td>
@@ -543,13 +544,8 @@
                             <form:form action="responder.htm" method="POST">
                                 <div id="replydata">
                                 </div>  
-                                <div>
-                                    <label class="control-label">Asunto</label> 
+                                <div id="asuntodiv">
                                 </div>
-                                <div>
-                                    <textarea name="asunto" id="asunto" rows="1" cols="40"></textarea>
-                                </div>
-                                <label class="control-label">Text</label>
                                 <textarea name="NotificationMessage" id="NotificationMessage" required="required"></textarea>
                                 <script> CKEDITOR.replace('NotificationMessage');</script>
 
