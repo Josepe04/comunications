@@ -48,6 +48,8 @@ public class EnviarmensajePadre {
         }else{
             profesores = getProfesors(Integer.parseInt(id));
         }
+        hsr1.setContentType("application/json");
+        hsr1.setCharacterEncoding("ISO-8859-1"); 
         return new Gson().toJson(profesores);
     }
     

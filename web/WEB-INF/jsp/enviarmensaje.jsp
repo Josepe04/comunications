@@ -546,7 +546,7 @@
                             </div>
                         </div>
                         <div class="col-xs-12" style="margin-top: 40px;">
-                            <label class="control-label">Asunto</label> 
+                            <label class="control-label">Subject</label> 
                             <div class="col-xs-12">
                                 <textarea name="asunto" id="asunto" rows="1" cols="40"></textarea>
                             </div>

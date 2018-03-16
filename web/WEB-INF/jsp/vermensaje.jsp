@@ -38,7 +38,7 @@
                     </div>
                     <div class="col-xs-4 text-center">
                         <div>
-                            <label class="control-label">Asunto</label> 
+                            <label class="control-label">Subject</label> 
                         </div>
                         <div>
                             <textarea readonly="readonly" name="asunto" id="asunto" rows="1" cols="30">${mensaje.asunto}</textarea>
@@ -70,7 +70,7 @@
                             <input name="destinatarios" id="destinatarios" type="hidden" value="['${mensaje.sender}']">
                             <input name="parentid" id="parentid" type="hidden" value="${mensaje.id}">
                             <div>
-                                <label class="control-label">Asunto</label> 
+                                <label class="control-label">Subject</label> 
                             </div>
                             <div>
                                 <textarea name="asunto" id="asunto" rows="1" cols="40"></textarea>

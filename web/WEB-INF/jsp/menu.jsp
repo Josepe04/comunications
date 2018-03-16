@@ -489,7 +489,7 @@
                                 </tbody>
                             </table>
                     <form:form action="enviar.htm" method="POST">
-                        <input type="submit" value="create message" class="btn btn-success">
+                        <input type="submit" value="Create message" class="btn btn-success">
                     </form:form>
                 </div>
                 </div>
@@ -503,7 +503,7 @@
             <div class="modal-content">
               <div class="modal-header modal-header-details">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">show message</h4>
+                <h4 class="modal-title">Show Message</h4>
               </div>
                 <div class="modal-body">
                     <div class="container-fluid">
@@ -529,7 +529,7 @@
                         </div>
                         <div class="col-xs-8">
                             <div class="row title">
-                                <h4>texto</h4> 
+                                <h4>Message Text</h4> 
                             </div>
                             <div class="row">
                                 <ul id="textov">
@@ -550,7 +550,7 @@
                                 <script> CKEDITOR.replace('NotificationMessage');</script>
 
                                 <div class="col-xs-12 text-center">
-                                    <input class="btn btn-primary btn-lg" type="submit" name="Submit" value="reply"onclick="rellenarText()">
+                                    <input class="btn btn-primary btn-lg" type="submit" name="Submit" value="Reply"onclick="rellenarText()">
                                 </div>
                             </form:form>
                         </div>

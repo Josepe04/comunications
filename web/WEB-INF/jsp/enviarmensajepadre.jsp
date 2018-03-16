@@ -435,7 +435,7 @@ $(function() {
                                 </div>
                     <div class="col-xs-9 center-block form-group" style="padding-right: 0px;">
                         <div>
-                            <label class="control-label">Asunto</label> 
+                            <label class="control-label">Subject</label> 
                         </div>
                         <div>
                             <textarea name="asunto" id="asunto" rows="1" cols="40"></textarea>

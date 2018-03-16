@@ -85,7 +85,8 @@ public class EnviarMensaje {
                 ex.printStackTrace(new PrintWriter(errors));
                 //log.error(ex+errors.toString());
         }
-        
+        hsr1.setContentType("application/json");
+hsr1.setCharacterEncoding("ISO-8859-1"); 
         mv.addObject("gradelevels", grades);
         return mv;
     }
@@ -141,6 +142,8 @@ public class EnviarMensaje {
                 ex.printStackTrace(new PrintWriter(errors));
                 //log.error(ex+errors.toString());
            } 
+        hsr1.setContentType("application/json");
+hsr1.setCharacterEncoding("ISO-8859-1"); 
         return new Gson().toJson(grades);
     }
 
@@ -154,6 +157,8 @@ public class EnviarMensaje {
         char c = studentsgrades.get(5).getNombre_students().charAt(8);
         String pr = Integer.toHexString((int) c);
         String data=new Gson().toJson(studentsgrades);
+        hsr1.setContentType("application/json");
+hsr1.setCharacterEncoding("ISO-8859-1"); 
         return data;
     }
     
@@ -202,6 +207,8 @@ public class EnviarMensaje {
         
         time_end = System.currentTimeMillis();
         System.out.println("the task has taken "+ ( time_end - time_start ) +" milliseconds");
+        hsr1.setContentType("application/json");
+hsr1.setCharacterEncoding("ISO-8859-1"); 
         return data;
     }
     
@@ -348,7 +355,7 @@ public class EnviarMensaje {
         if(parentid!=null)
             m = new Mensaje("Mensaje de "+fromName+": "+asunto,text,Integer.parseInt(parentid),1);
         else
-            m = new Mensaje("Mensaje de "+fromName+" "+asunto,text,0,1);
+            m = new Mensaje("Mensaje de "+fromName+": "+asunto,text,0,1);
         m.setDestinatarios(destinationEmails);
         SendMail.SendMail(m);
         
