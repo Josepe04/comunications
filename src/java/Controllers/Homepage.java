@@ -252,13 +252,13 @@ public class Homepage extends MultiActionController  {
                     + " from mensaje inner join msg_folder on mensaje.msgid=msg_folder.msgid"
                     + " inner join folder on msg_folder.idfolder=folder.idfolder and folder.nombre='Inbox'"
                     + " inner join msg_from_to on mensaje.msgid=msg_from_to.msgid"
-                    + " where folder.idpersona="+u.getId();
+                    + " where folder.idpersona='"+u.getId()+"' order by fecha DESC";
             }else{
                 consulta = "select distinct mensaje.msgid,msg_folder.idfolder,parentid,fecha,prio,asunto,texto,msfrom,fromname,folder.nombre as nombref,folder.idfolder as idf"
                     + " from mensaje inner join msg_folder on mensaje.msgid=msg_folder.msgid"
                     + " inner join folder on msg_folder.idfolder=folder.idfolder and folder.idfolder="+carpeta
                     + " inner join msg_from_to on mensaje.msgid=msg_from_to.msgid"
-                    + " where folder.idpersona="+u.getId();
+                    + " where folder.idpersona='"+u.getId()+"' order by fecha DESC";
             }
             ResultSet rs = st.executeQuery(consulta);
             while(rs.next()){

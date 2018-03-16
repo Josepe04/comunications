@@ -229,6 +229,7 @@
                                         $('#table_id').DataTable({
                                             "aLengthMenu": [[5, 10, 20, -1], [5, 10, 20, "All"]],
                                             "iDisplayLength": 5,
+                                            "ordering":false,
 
                                             "columnDefs": [
                                                     { "width": "10%",  "targets": [ 0 ],
@@ -236,7 +237,7 @@
                                                         "searchable": false},
                                                     { "width": "25%",   "targets": [ 1 ]},
                                                     { "width": "5%",    "targets": [ 2 ] },
-                                                    { "width": "40%",   "targets": [ 3 ] },
+                                                    { "width": "40%",   "targets": [ 3 ]},
                                                     { "width": "10%",   "targets": [ 4 ] },
                                                     { "width": "10%",   "targets": [ 5 ] }
                                             ]
@@ -276,6 +277,7 @@
                 $('#table_id').DataTable({
                     "aLengthMenu": [[5, 10, 20, -1], [5, 10, 20, "All"]],
                     "iDisplayLength": 5,
+                    "ordering":false,
 
                     "columnDefs": [
                             { "width": "10%",  "targets": [ 0 ],
@@ -344,7 +346,7 @@
                             $('#table_id').DataTable({
                                 "aLengthMenu": [[5, 10, 20, -1], [5, 10, 20, "All"]],
                                 "iDisplayLength": 5,
-
+                                "ordering": false,
                                 "columnDefs": [
                                         { "width": "10%",  "targets": [ 0 ],
                                             "visible": false,
