@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 import model.Mensaje;
 import com.google.gson.Gson;
 import java.util.Calendar;
+import model.ActivityLog;
 import model.SendMail;
 import model.User;
 import org.springframework.context.ApplicationContext;
@@ -277,12 +278,18 @@ hsr1.setCharacterEncoding("ISO-8859-1");
          if(mv!=null)
              return mv;  
         
+        String from = ""+((User)hsr.getSession().getAttribute("user")).getId();
         String[] destinationListAux = hsr.getParameterValues("destino[]");
         String asunto = hsr.getParameter("asunto");
         String text = hsr.getParameter("NotificationMessage");
         String parentid = hsr.getParameter("parentid");
         String msgid = "";
         String consulta;
+        String fromName = "error not found";
+        ResultSet name = Homepage.st2.executeQuery("select * from Person where PersonID="+from);
+        if(name.next())
+            fromName = name.getString("firstname")+" "+name.getString("LastName");
+        fromName = limpiarFromName(fromName);
         if(asunto.equals("") || asunto.length()>30 || text.equals("") || destinationListAux==null){
             mv = new ModelAndView("enviarmensaje");
             mv.addObject("error", "error");
@@ -309,16 +316,15 @@ hsr1.setCharacterEncoding("ISO-8859-1");
                     + " and ps.Custody = 1";
             ResultSet rs = Homepage.st2.executeQuery(consulta);
             while(rs.next()){
-                destinationList.add(rs.getString(1));
-                destinationEmails.add(rs.getString("mail"));
+                String mail = rs.getString("mail");
+                String destId = rs.getString(1);
+                if(mail != null){
+                    destinationList.add(destId);
+                    destinationEmails.add(mail);
+                } else
+                    ActivityLog.nuevaEntrada(from,fromName,destId, "no email", "El custody no tiene corrreo");
             }
         }
-        String from = ""+((User)hsr.getSession().getAttribute("user")).getId();
-        String fromName = "error not found";
-        ResultSet name = Homepage.st2.executeQuery("select * from Person where PersonID="+from);
-        if(name.next())
-            fromName = name.getString("firstname")+" "+name.getString("LastName");
-        fromName = limpiarFromName(fromName);
         for(String dest:destinationList){
           ResultSet rs = Homepage.st.executeQuery("select * from folder where idpersona="+dest+" and nombre='Inbox'");
           if(rs.next())
@@ -353,13 +359,18 @@ hsr1.setCharacterEncoding("ISO-8859-1");
             Homepage.st.executeUpdate(consulta);
         }
         if(parentid!=null)
-            m = new Mensaje("Mensaje de "+fromName+": "+asunto,text,Integer.parseInt(parentid),1);
+            m = new Mensaje(fromName,"Mensaje de "+fromName+": "+asunto,text,Integer.parseInt(parentid),1);
         else
-            m = new Mensaje("Mensaje de "+fromName+": "+asunto,text,0,1);
+            m = new Mensaje(fromName,"Mensaje de "+fromName+": "+asunto,text,0,1);
         m.setDestinatarios(destinationEmails);
-        SendMail.SendMail(m);
-        
-        return start(hsr,hsr1);
+        try{
+            SendMail.SendMail(m,from);
+        }catch(Exception e){
+            mv = new ModelAndView("enviarmensaje");
+            mv.addObject("error", "error");
+            return mv;
+        }
+        return new ModelAndView("redirect:/menu/start.htm?folder=null");
     }
     
     public ArrayList<Students> getStudents() throws SQLException

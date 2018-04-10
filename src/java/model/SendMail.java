@@ -5,16 +5,7 @@
  */
 package model;
 
-import com.sun.mail.smtp.SMTPMessage;
-import java.net.PasswordAuthentication;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
@@ -27,7 +18,7 @@ import javax.mail.internet.MimeMessage;
  * @author nmohamed
  */
 public class SendMail {
-    public static void SendMail(Mensaje m) {
+    public static void SendMail(Mensaje m, String from) throws MessagingException {
         Properties props = new Properties();
 //        props.put("mail.smtp.auth", "true");
 //        props.put("mail.smtp.starttls.enable", "true");
@@ -59,19 +50,20 @@ public class SendMail {
 
     //            Transport.send(message);
 
-             Transport transport = session.getTransport("smtp");
+                Transport transport = session.getTransport("smtp");
                 transport.connect(host, "info.ca.pan2018", "Kokowawa1");
                 transport.sendMessage(message, message.getAllRecipients());
                 transport.close();
-               System.out.println("Sent message successfully....");
+                System.out.println("Sent message successfully....");
               //  Class.forName("org.postgresql.Driver");
               //  Connection cn = DriverManager.getConnection("jdbc:postgresql://192.168.1.3:5432/Maintenance_jobs?user=eduweb&password=Madrid2016");
             //ActivityLog.log(m.getJob_id(),m.getRw_event_id(),m.getRecipient(),m.getBody(), cn);
 //            Statement st = cn.createStatement();
             //st.executeUpdate("update jobs set lastrun = now() where id ="+m.getJob_id());
-
+                ActivityLog.nuevaEntrada(from ,m.getSender(),"correo: "+dest ,"mensaje enviado", "mensaje enviado correctamente");
             }catch (MessagingException e) {
-                throw new RuntimeException(e);
+                ActivityLog.nuevaEntrada(from ,m.getSender(),"correo: "+dest ,"fallo", "mensaje no enviado");
+                throw e;
             }
         }
     }

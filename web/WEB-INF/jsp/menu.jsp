@@ -212,7 +212,10 @@
                                                     '<td>'+json[i].texto+'</td>'+
                                                     '<td>'+json[i].fecha+'</td>'+
                                                     '<td> <div class="col-xs-6 sinpadding text-center" >';
-                                            if(nombre!=='Sent' && nombre!=='Trash')
+                                            showReply();
+                                            if(nombre === 'Sent')
+                                                hideReply();
+                                            if(nombre!=='Trash')
                                                 columna+='<input onclick="verMsg('+json[i].id+');" id="ver_button" name="ver_button" type="image" src="<c:url value="/recursos/img/btn/btn_details.svg"/>" width="30px" data-placement="bottom" title="Details">';
                                             columna+='</div>';
                                             if(nombre!=='Sent'){
@@ -328,7 +331,10 @@
                                         '<td>'+json[i].texto+'</td>'+
                                         '<td>'+json[i].fecha+'</td>'+
                                         '<td> <div class="col-xs-6 sinpadding text-center" >';
-                                if(nombre!=='Sent' && nombre!=='Trash')
+                                showReply();
+                                if(nombre === 'Sent')
+                                    hideReply();
+                                if(nombre!=='Trash')
                                     columna+='<input onclick="verMsg('+json[i].id+');" id="ver_button" name="ver_button" type="image" src="<c:url value="/recursos/img/btn/btn_details.svg"/>" width="30px" data-placement="bottom" title="Details">';
                                 columna+='</div>';
                                 if(nombre!=='Sent'){
@@ -549,7 +555,16 @@
                                 <div id="asuntodiv">
                                 </div>
                                 <textarea name="NotificationMessage" id="NotificationMessage" required="required"></textarea>
-                                <script> CKEDITOR.replace('NotificationMessage');</script>
+                                <script> CKEDITOR.replace('NotificationMessage');
+                                        
+                                    function showReply(){
+                                        $('#cke_NotificationMessage').show();
+                                    }
+                                    
+                                    function hideReply(){
+                                        $('#cke_NotificationMessage').hide();
+                                    }
+                                </script>
 
                                 <div class="col-xs-12 text-center">
                                     <input class="btn btn-primary btn-lg" type="submit" name="Submit" value="Reply"onclick="rellenarText()">

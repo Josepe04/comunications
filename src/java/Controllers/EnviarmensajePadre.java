@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import model.ActivityLog;
 import model.Hijo;
 import model.Mensaje;
 import model.Profesor;
@@ -77,15 +78,24 @@ public class EnviarmensajePadre {
         mv = new ModelAndView("redirect:/menu/start.htm?folder=null");
         String asunto = hsr.getParameter("asunto");
         String text = hsr.getParameter("NotificationMessage");
-        String data = hsr.getParameter("student");
         String parentmsgid = hsr.getParameter("parentid");
+        String[] destinationListAux = hsr.getParameterValues("destino[]");
+        ArrayList<String> destinationList = new ArrayList();
         String msgid = "";
         String consulta;
         
+        /**
+         * Saco el nombre del sender de renweb
+         */
+        String from = ""+((User)hsr.getSession().getAttribute("user")).getId();
+        String fromName = "error not found";
+        ResultSet name = Homepage.st2.executeQuery("select * from Person where PersonID="+from);
+        if(name.next())
+            fromName = name.getString("firstname")+" "+name.getString("LastName");
+        fromName = EnviarMensaje.limpiarFromName(fromName);
          
         Mensaje m;
         User u = (User)hsr.getSession().getAttribute("user");
-        String[] destinationList = hsr.getParameterValues("destino[]");
         ArrayList<String> folderList = new ArrayList<>();
         ArrayList<String> emails = new ArrayList<>();
         
@@ -100,22 +110,19 @@ public class EnviarmensajePadre {
                     "-"+t.get(Calendar.DAY_OF_MONTH)+" "+t.get(Calendar.HOUR_OF_DAY)+":"+
                     t.get(Calendar.MINUTE)+":"+t.get(Calendar.SECOND);
         
-        String from = ""+((User)hsr.getSession().getAttribute("user")).getId();
-        String fromName = "error not found";
-        ResultSet name = Homepage.st2.executeQuery("select * from Person where PersonID="+from);
-        if(name.next())
-            fromName = name.getString("firstname")+" "+name.getString("LastName");
-        fromName = EnviarMensaje.limpiarFromName(fromName);
-        
-        for(String dest:destinationList){
+        for(String dest:destinationListAux){
           ResultSet rs = Homepage.st.executeQuery("select * from folder where idpersona="+dest+" and nombre='Inbox'");
           if(rs.next())
               folderList.add(rs.getString("idfolder"));
           else
               folderList.add(EnviarMensaje.createFolder(Homepage.st,dest,"Inbox"));
           ResultSet rs2 = Homepage.st2.executeQuery("select email from person where personid="+dest);
-          if(rs2.next())
+          if(rs2.next()){
+              destinationList.add(dest);
               emails.add(rs2.getString(1));
+          }else{
+              ActivityLog.nuevaEntrada(from,fromName,dest, "no email", "El custody no tiene corrreo");
+          }
         }
         ResultSet rs3 = Homepage.st.executeQuery("select * from folder where idpersona="+u.getId()+" and nombre='Sent'");
         if(rs3.next())
@@ -133,17 +140,17 @@ public class EnviarmensajePadre {
         for(String f:folderList){
             Homepage.st.executeUpdate("insert into msg_folder values("+msgid+","+f+")");
         }
-        for(int i=0;i<destinationList.length;i++){
+        for(int i=0;i<destinationList.size();i++){
             consulta = "insert into msg_from_to(msgid,msfrom,msto,fromname) values("+msgid+","+from+","
-                    +destinationList[i]+",'"+fromName+"')"; 
+                    +destinationList.get(i)+",'"+fromName+"')"; 
             Homepage.st.execute(consulta);
         }
         if(parentmsgid!=null)
-            m = new Mensaje("Mensaje de "+fromName+": "+asunto,text,Integer.parseInt(parentmsgid),1);
+            m = new Mensaje(fromName,"Mensaje de "+fromName+": "+asunto,text,Integer.parseInt(parentmsgid),1);
         else
-            m = new Mensaje("Mensaje de "+fromName+": "+asunto,text,0,1);
+            m = new Mensaje(fromName,"Mensaje de "+fromName+": "+asunto,text,0,1);
         m.setDestinatarios(emails);
-        SendMail.SendMail(m);
+        SendMail.SendMail(m,from);
         return mv;
     }
     
