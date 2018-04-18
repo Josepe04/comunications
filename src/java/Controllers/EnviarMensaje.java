@@ -59,7 +59,9 @@ public class EnviarMensaje {
             p2 = Integer.parseInt(parameter2);
         mv = new ModelAndView("enviarmensaje");
         List <Level> grades = new ArrayList();
-         
+        Level l = new Level();
+        l.setName("Select class");
+        grades.add(l);
         try{
             mv.addObject("listaAlumnos", this.getStudents());
             ResultSet rs;
@@ -68,18 +70,15 @@ public class EnviarMensaje {
                         +" or AltStaffID="+u.getId()+" or AidID="+u.getId()
                         + ")");
             else
-                rs = Homepage.st2.executeQuery("SELECT * FROM Classes");
-            Level l = new Level();
-            l.setName("Select class");
-            grades.add(l);
+                rs = Homepage.st2.executeQuery("SELECT * FROM Classes");       
             while(rs.next())
             {
                 Level x = new Level();
-                 String[] ids = new String[1];
-                 ids[0]=""+rs.getInt("ClassID");
+                String[] ids = new String[1];
+                ids[0]=""+rs.getInt("ClassID");
                 x.setId(ids);
                 x.setName(rs.getString("Name"));
-            grades.add(x);
+                grades.add(x);
             }
         }catch(SQLException ex){
                StringWriter errors = new StringWriter();
@@ -87,16 +86,26 @@ public class EnviarMensaje {
                 //log.error(ex+errors.toString());
         }
         hsr1.setContentType("application/json");
-hsr1.setCharacterEncoding("ISO-8859-1"); 
+        hsr1.setCharacterEncoding("ISO-8859-1"); 
         mv.addObject("gradelevels", grades);
         return mv;
     }
     
+    /**
+     * Esta funcion cambio el select, este puede ser select de grados
+     * o select de clases.
+     * @param id
+     * @param hsr
+     * @param hsr1
+     * @return
+     * @throws Exception 
+     */
     @RequestMapping("/enviarmensaje/filter.htm")
     @ResponseBody
     public String filterSelect (@RequestParam("seleccion") String id,HttpServletRequest hsr, HttpServletResponse hsr1) throws Exception {
         List <Level> grades = new ArrayList();
         User u = (User)hsr.getSession().getAttribute("user");
+        //SELECT DE GRADOS
         if(id.equals("0"))
            try{
             ResultSet rs = Homepage.st2.executeQuery("SELECT GradeLevel,GradeLevelID FROM GradeLevels");
@@ -117,6 +126,7 @@ hsr1.setCharacterEncoding("ISO-8859-1");
                 ex.printStackTrace(new PrintWriter(errors));
                 //log.error(ex+errors.toString());
            }
+        //SELECT DE CLASES
         else
            try{
             ResultSet rs;
@@ -144,7 +154,7 @@ hsr1.setCharacterEncoding("ISO-8859-1");
                 //log.error(ex+errors.toString());
            } 
         hsr1.setContentType("application/json");
-hsr1.setCharacterEncoding("ISO-8859-1"); 
+        hsr1.setCharacterEncoding("ISO-8859-1"); 
         return new Gson().toJson(grades);
     }
 
@@ -159,10 +169,16 @@ hsr1.setCharacterEncoding("ISO-8859-1");
         String pr = Integer.toHexString((int) c);
         String data=new Gson().toJson(studentsgrades);
         hsr1.setContentType("application/json");
-hsr1.setCharacterEncoding("ISO-8859-1"); 
+        hsr1.setCharacterEncoding("ISO-8859-1"); 
         return data;
     }
     
+    /**
+     * Devuelve las clases de un determinado grado.
+     * @param gradeid
+     * @return
+     * @throws SQLException 
+     */
     public ArrayList<Students> getStudentsclass(String gradeid) throws SQLException
     {         
         ArrayList<Students> listaAlumnos = new ArrayList<>();
@@ -190,6 +206,13 @@ hsr1.setCharacterEncoding("ISO-8859-1");
          
     }
     
+    /**
+     * Lista de grados dado un estudiante.
+     * @param hsr
+     * @param hsr1
+     * @return
+     * @throws Exception 
+     */
     @RequestMapping("/enviarmensaje/studentlistLevel.htm")
     @ResponseBody
     public String studentlistLevel(HttpServletRequest hsr, HttpServletResponse hsr1) throws Exception {
@@ -213,6 +236,12 @@ hsr1.setCharacterEncoding("ISO-8859-1");
         return data;
     }
     
+    /**
+     * 
+     * @param gradeid
+     * @return
+     * @throws SQLException 
+     */
     public ArrayList<Students> getStudentslevel(String gradeid) throws SQLException
     {         
         ArrayList<Students> listaAlumnos = new ArrayList<>();
@@ -253,6 +282,14 @@ hsr1.setCharacterEncoding("ISO-8859-1");
          
     }
     
+    /**
+     * Crea una carpeta.
+     * @param st
+     * @param id
+     * @param nombre
+     * @return
+     * @throws SQLException 
+     */
     public static String createFolder(Statement st,String id,String nombre) throws SQLException{
         st.executeUpdate("insert into folder(idpersona,nombre) values ("+id+",'"+nombre+"')",
                           Statement.RETURN_GENERATED_KEYS);
@@ -263,6 +300,13 @@ hsr1.setCharacterEncoding("ISO-8859-1");
             return null;
     }
     
+    
+    /**
+     * Quita los asteriscos del nombre, 
+     * ya que estos dan problemas en la base de datos
+     * @param name
+     * @return 
+     */
     public static String limpiarFromName(String name){
         if(name.contains("*") && name.indexOf("*") < name.length()-1){
             name = name.substring(0, name.indexOf("*"))+limpiarFromName(name.substring(name.indexOf("*")+1));
@@ -272,6 +316,14 @@ hsr1.setCharacterEncoding("ISO-8859-1");
         return name;
     }
     
+    
+    /**
+     * Envia un mensaje a los custody que tenga un alumno concreto
+     * @param hsr
+     * @param hsr1
+     * @return
+     * @throws Exception 
+     */
     @RequestMapping("/enviarmensaje/enviar.htm")
     public ModelAndView enviar( HttpServletRequest hsr, HttpServletResponse hsr1) throws Exception {
         ModelAndView mv = Homepage.checklogin(hsr);
@@ -373,6 +425,12 @@ hsr1.setCharacterEncoding("ISO-8859-1");
         return new ModelAndView("redirect:/menu/start.htm?folder=null");
     }
     
+    
+    /**
+     * Coge la lista de estudiantes de renweb.
+     * @return
+     * @throws SQLException 
+     */
     public ArrayList<Students> getStudents() throws SQLException
     {
 //        this.conectarOracle();

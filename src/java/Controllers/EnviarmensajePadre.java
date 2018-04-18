@@ -34,6 +34,14 @@ import org.springframework.web.servlet.ModelAndView;
 @Controller
 public class EnviarmensajePadre {
     
+    /**
+     * Esta funcion devuelve la lista de profesores dado un niño.
+     * @param id
+     * @param hsr
+     * @param hsr1
+     * @return
+     * @throws SQLException 
+     */
     @RequestMapping("/enviarmensajepadre/seleccionchild.htm")
     @ResponseBody
     public String seleccionado(@RequestParam("seleccion") String id,HttpServletRequest hsr, HttpServletResponse hsr1) throws SQLException{
@@ -70,6 +78,13 @@ public class EnviarmensajePadre {
         return mv;
     }
     
+    /**
+     * El padre envia un mensaje a un profesor o niembro del staff.
+     * @param hsr
+     * @param hsr1
+     * @return
+     * @throws Exception 
+     */
     @RequestMapping("/enviarmensajepadre/enviar.htm")
     public ModelAndView enviar( HttpServletRequest hsr, HttpServletResponse hsr1) throws Exception {
         ModelAndView mv = Homepage.checklogin(hsr);
@@ -99,8 +114,7 @@ public class EnviarmensajePadre {
         ArrayList<String> folderList = new ArrayList<>();
         ArrayList<String> emails = new ArrayList<>();
         
-        //  
-         if(asunto.equals("") || asunto.length()>30 || text.equals("") || destinationList==null){
+        if(asunto.equals("") || asunto.length()>30 || text.equals("") || destinationListAux==null){
             mv = new ModelAndView("enviarmensaje");
             mv.addObject("error", "error");
             return mv;
@@ -130,6 +144,9 @@ public class EnviarmensajePadre {
         else
             folderList.add(EnviarMensaje.createFolder(Homepage.st,""+u.getId(),"Sent"));
         
+        /*-----------------------------------
+          -INSERCCION DE DATOS EN NUESTRA DB-
+          -----------------------------------*/
         consulta = "insert into mensaje (parentid,fecha,prio,asunto,texto) values ("
                 +((User)hsr.getSession().getAttribute("user")).getId()+
                 ", '"+time+"' ,1,'"+asunto+"','"+text+"')";
@@ -150,10 +167,18 @@ public class EnviarmensajePadre {
         else
             m = new Mensaje(fromName,"Mensaje de "+fromName+": "+asunto,text,0,1);
         m.setDestinatarios(emails);
+        
+        //Esta funcion envia el correo
         SendMail.SendMail(m,from);
         return mv;
     }
     
+    /**
+     * Saca los profesores de renweb
+     * @param id
+     * @return
+     * @throws SQLException 
+     */
     public ArrayList<Profesor> getProfesors(int id) throws SQLException
     {
         ArrayList<Profesor> listaProfesores = new ArrayList<>();
@@ -193,6 +218,12 @@ public class EnviarmensajePadre {
         return listaProfesores;
     }
     
+    /**
+     * Saca los estudiantes de renweb
+     * @param u
+     * @return
+     * @throws SQLException 
+     */
     public ArrayList<Hijo> getChildren(User u) throws SQLException {
         int id = u.getId();
         ArrayList<Hijo> listaAlumnos = new ArrayList<>();

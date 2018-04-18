@@ -177,14 +177,28 @@ public class Homepage extends MultiActionController  {
         //return mv;
     }
 
-        //user.setId(10333);
-        //user.setId(10366);
 
+    /**
+     * Cambio el tipo de usuario.
+     * Tipos de usuarios:
+     * -profesor que a la vez es padre
+     * -padre
+     * -profesor
+     * -staff
+     * 
+     * @param user 
+     */
     public void setTipo(User user) {
         boolean padre = false, profesor = false;
+        boolean admin = false;
         try {
-            String consulta = "SELECT count(*) AS cuenta FROM Staff where Faculty = 1 and StaffID =" + user.getId();
+            String consulta = "SELECT count(*) AS cuenta FROM Staff where Administrator= 1 and StaffID =" + user.getId();
             ResultSet rs = st2.executeQuery(consulta);
+            if (rs.next()) {
+                admin = rs.getInt("cuenta") > 0;
+            }
+            consulta = "SELECT count(*) AS cuenta FROM Staff where Faculty = 1 and StaffID =" + user.getId();
+            rs = st2.executeQuery(consulta);
             if (rs.next()) {
                 profesor = rs.getInt("cuenta") > 0;
             }
@@ -196,17 +210,20 @@ public class Homepage extends MultiActionController  {
         } catch (SQLException ex) {
             System.out.println("error");
         }
-        if (padre && profesor) {
+        if(admin)
+            user.setType(3);
+        else if (padre && profesor) {
             user.setType(0);
         } else if (padre) {
             user.setType(1);
         } else if(profesor){
             user.setType(2);
         } else {
-            user.setType(3);
+            user.setType(2);
         }
     }
 
+    
     private String recolocar(String in){
         String add = "";
         int nocopiar = 0; 
@@ -225,6 +242,16 @@ public class Homepage extends MultiActionController  {
         return add;
     }
     
+    /**
+     * Esta funcion carga toda la informacion de carpetas,
+     * y los mensjaes de la carpeta que se le pasa por parametro.
+     * Si el parametro carpeta es null se carga el inbox por defecto.
+     * @param carpeta
+     * @param hsr
+     * @param hsr1
+     * @return
+     * @throws Exception 
+     */
     @RequestMapping("/menu/start.htm")
     public ModelAndView menu(@RequestParam("folder") String carpeta,HttpServletRequest hsr, HttpServletResponse hsr1) throws Exception {
          ModelAndView mv = checklogin(hsr);
@@ -238,6 +265,8 @@ public class Homepage extends MultiActionController  {
          String consulta = "";
          User u = (User)hsr.getSession().getAttribute("user");
          try{
+            //Carga (o crea si no existen) las carpetas por defecto:
+            //Inbox , Sent , Trash.
             ResultSet folder = st.executeQuery("select * from folder where idpersona="+u.getId()+" and nombre='Inbox'");
             if(!folder.next())
                 EnviarMensaje.createFolder(st,""+u.getId(),"Inbox");
@@ -247,6 +276,8 @@ public class Homepage extends MultiActionController  {
             ResultSet folder3 = st.executeQuery("select * from folder where idpersona="+u.getId()+" and nombre='Trash'");
             if(!folder3.next())
                 EnviarMensaje.createFolder(st,""+u.getId(),"Trash");
+            
+            //Carga los mensajes de la carpeta que se le pasa por parametro.
             if(carpeta.equals("null")){
                 consulta = "select distinct mensaje.msgid,msg_folder.idfolder,parentid,fecha,prio,asunto,texto,msfrom,fromname,folder.nombre as nombref,folder.idfolder as idf"
                     + " from mensaje inner join msg_folder on mensaje.msgid=msg_folder.msgid"
@@ -268,8 +299,10 @@ public class Homepage extends MultiActionController  {
                 if(text.length()>20)
                     text = recolocar(text.substring(0, 20));
                 listaMensajes.add(new Mensaje(rs.getInt(2),rs.getInt(1),rs.getString("asunto"),text,
-                     Integer.parseInt(rs.getString("prio")),rs.getString("fromname"),rs.getString("fecha"),1));
+                Integer.parseInt(rs.getString("prio")),rs.getString("fromname"),rs.getString("fecha"),1));
             }
+            
+            //Carga las carpetas del usuario que esta logeado
             ResultSet rs2 = st.executeQuery("select nombre,idfolder from folder "
                     + "where idpersona = "+u.getId());
             while(rs2.next()){
@@ -288,6 +321,14 @@ public class Homepage extends MultiActionController  {
     }
     
     
+    /**
+     * Crea una nueva carpeta.
+     * @param nombre
+     * @param hsr
+     * @param hsr1
+     * @return
+     * @throws Exception 
+     */
     @RequestMapping("/menu/createfolder.htm")
     @ResponseBody
     public String createFolder(@RequestParam("nombre") String nombre,HttpServletRequest hsr, HttpServletResponse hsr1) throws Exception {
@@ -304,6 +345,14 @@ public class Homepage extends MultiActionController  {
         return new Gson().toJson(listaFolders);//u.getId();
     }        
 
+    /**
+     * devuelve los mensajes de una carpeta dado su id.
+     * @param id
+     * @param hsr
+     * @param hsr1
+     * @return
+     * @throws SQLException 
+     */
     @RequestMapping("/menu/chargefolder.htm")
     @ResponseBody
     public String chargeFolder(@RequestParam("seleccion") String id, HttpServletRequest hsr, HttpServletResponse hsr1) throws SQLException{
@@ -331,6 +380,16 @@ public class Homepage extends MultiActionController  {
         return new Gson().toJson(listaMensajes);
     }
     
+    /**
+     * Mueve un mensaje de una carpeta a otra.
+     * @param idfolder
+     * @param idmsg
+     * @param idfolder2
+     * @param hsr
+     * @param hsr1
+     * @return
+     * @throws SQLException 
+     */
     @RequestMapping("/menu/changemsgfolder.htm")
     @ResponseBody
     public String changeMsgFolder(@RequestParam("idfolder") String idfolder,@RequestParam("idmsg") String idmsg,@RequestParam("idfolder2") String idfolder2 ,HttpServletRequest hsr, HttpServletResponse hsr1) throws SQLException{
