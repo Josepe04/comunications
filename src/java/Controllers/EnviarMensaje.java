@@ -179,7 +179,6 @@ public class EnviarMensaje {
     public String studentclassLevel(HttpServletRequest hsr, HttpServletResponse hsr1) throws Exception {
         List <Students> studentsgrades = new ArrayList();
         String[] levelid = hsr.getParameterValues("nivel");
-        String test = hsr.getParameter("levelStudent");
         studentsgrades =this.getStudentsclass(levelid[0]);
         char c = studentsgrades.get(5).getNombre_students().charAt(8);
         String pr = Integer.toHexString((int) c);

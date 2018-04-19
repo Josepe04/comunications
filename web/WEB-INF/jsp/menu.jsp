@@ -152,13 +152,15 @@
                                     $('#pepe').append('<option id="folder2_'+json[i].id
                                             +'" value="'+json[i].id
                                             +'" >'+json[i].nombre+'</option>');
-                                var columna = '<tr id="folder_'+json[i].id+'">'+
-                                        '<td>'+json[i].id+'</td>'+
-                                        '<td>'+json[i].nombre+'</td>'+
-                                        '<td>';
-                                if(json[i].nombre!=='Sent'&&json[i].nombre!=='Trash'&&json[i].nombre!=='Inbox')
-                                    columna+='<input onclick="borrarFolder('+json[i].id+')" type="image" src="<c:url value="/recursos/img/btn/borrar.svg"/>" width="30px" data-placement="bottom" title="Delete">';
-                                columna+='</td> </tr>'; 
+                                if(json[i].nombre !== 'Trash'){
+                                    var columna = '<tr id="folder_'+json[i].id+'">'+
+                                            '<td>'+json[i].id+'</td>'+
+                                            '<td>'+json[i].nombre+'</td>'+
+                                            '<td>';
+                                    if(json[i].nombre!=='Sent'&&json[i].nombre!=='Trash'&&json[i].nombre!=='Inbox')
+                                        columna+='<input onclick="borrarFolder('+json[i].id+')" type="image" src="<c:url value="/recursos/img/btn/borrar.svg"/>" width="30px" data-placement="bottom" title="Delete">';
+                                    columna+='</td> </tr>'; 
+                                }
                                 $(columna);   
                                 $('#table_folders tbody').append(columna);
                             });
@@ -201,9 +203,6 @@
                                             '</thead>'+
                                             '</table>');
                                         $("#table_id").append($('<tbody></tbody>'));
-                                        var anadir = true;
-                                        if(nombre==='Trash')
-                                            anadir = false;
                                         $.each(json, function(i) {
                                             var columna = '<tr id="tr_'+json[i].id +'">'+
                                                     '<td>'+json[i].id+'</td>'+
@@ -218,11 +217,11 @@
                                             if(nombre!=='Trash')
                                                 columna+='<input onclick="verMsg('+json[i].id+');" id="ver_button" name="ver_button" type="image" src="<c:url value="/recursos/img/btn/btn_details.svg"/>" width="30px" data-placement="bottom" title="Details">';
                                             columna+='</div>';
-                                            if(nombre!=='Sent'){
-                                                columna+='<div class="col-xs-6 sinpadding text-center">'+
-                                                                '<input id="borrar_button_'+json[i].id+'" onclick="borrarmsg('+anadir+','+json[i].id+','+json[i].folderid+')" class="delete" name="TXTid_lessons_eliminar" type="image" src="<c:url value="/recursos/img/btn/btn_delete.svg"/>" width="30px" data-placement="bottom" title="Delete">'+
-                                                            '</div>';//+'</tr>'; 
-                                            }
+//                                            if(nombre!=='Sent'){
+//                                                columna+='<div class="col-xs-6 sinpadding text-center">'+
+//                                                                '<input id="borrar_button_'+json[i].id+'" onclick="borrarmsg('+anadir+','+json[i].id+','+json[i].folderid+')" class="delete" name="TXTid_lessons_eliminar" type="image" src="<c:url value="/recursos/img/btn/btn_delete.svg"/>" width="30px" data-placement="bottom" title="Delete">'+
+//                                                            '</div>';//+'</tr>'; 
+//                                            }
                                             columna+='<div>'+
                                                             '<div class="col-xs-6 sinpadding text-center">'+
                                                                 '<input id="changefolder_button_'+json[i].id+'" onclick="showmodal('+json[i].id+','+json[i].folderid+')" class="delete" name="TXTid_lessons_eliminar" type="image" src="<c:url value="/recursos/img/btn/paste.svg"/>" width="30px" data-placement="bottom" title="Move">'+
@@ -320,9 +319,6 @@
                                 '</thead>'+
                                 '</table>');
                             $("#table_id").append($('<tbody></tbody>'));
-                            var anadir = true;
-                            if(nombre==='Trash')
-                                anadir = false;
                             $.each(json, function(i) {
                                 var columna = '<tr id="tr_'+json[i].id +'">'+
                                         '<td>'+json[i].id+'</td>'+
@@ -337,16 +333,16 @@
                                 if(nombre!=='Trash')
                                     columna+='<input onclick="verMsg('+json[i].id+');" id="ver_button" name="ver_button" type="image" src="<c:url value="/recursos/img/btn/btn_details.svg"/>" width="30px" data-placement="bottom" title="Details">';
                                 columna+='</div>';
-                                if(nombre!=='Sent'){
-                                    columna+='<div class="col-xs-6 sinpadding text-center">'+
-                                                    '<input id="borrar_button_'+json[i].id+'" onclick="borrarmsg('+anadir+','+json[i].id+','+json[i].folderid+')" class="delete" name="TXTid_lessons_eliminar" type="image" src="<c:url value="/recursos/img/btn/btn_delete.svg"/>" width="30px" data-placement="bottom" title="Delete">'+
-                                                '</div>';//+'</tr>'; 
+//                                if(nombre!=='Sent'){
+//                                    columna+='<div class="col-xs-6 sinpadding text-center">'+
+//                                                    '<input id="borrar_button_'+json[i].id+'" onclick="borrarmsg('+anadir+','+json[i].id+','+json[i].folderid+')" class="delete" name="TXTid_lessons_eliminar" type="image" src="<c:url value="/recursos/img/btn/btn_delete.svg"/>" width="30px" data-placement="bottom" title="Delete">'+
+//                                                '</div>';//+'</tr>'; 
+//                                }
+                                columna+='<div>'+
+                                                '<div class="col-xs-6 sinpadding text-center">'+
+                                                    '<input id="changefolder_button_'+json[i].id+'" onclick="showmodal('+json[i].id+','+json[i].folderid+')" class="delete" name="TXTid_lessons_eliminar" type="image" src="<c:url value="/recursos/img/btn/paste.svg"/>" width="30px" data-placement="bottom" title="Move">'+
+                                                '</div>' + '</tr>';
                                 
-                                    columna+='<div>'+
-                                                    '<div class="col-xs-6 sinpadding text-center">'+
-                                                            '<input id="changefolder_button_'+json[i].id+'" onclick="showmodal('+json[i].id+','+json[i].folderid+')" class="delete" name="TXTid_lessons_eliminar" type="image" src="<c:url value="/recursos/img/btn/paste.svg"/>" width="30px" data-placement="bottom" title="Move">'+
-                                                    '</div>' + '</tr>';
-                                }
                                 $('#table_id tbody').append($(columna));
                             });
                             $('#table_id').DataTable({
@@ -422,24 +418,25 @@
                                     </tr>
                                 </thead>
                                 <c:forEach var="folder" items="${folders}" >
-                                    <tr  id="folder_${folder.id}">
-                                        <td>${folder.id}</td>
-                                        <td>${folder.nombre}</td>
-                                        <td>
-                                            <c:choose>
-                                                <c:when test="${folder.nombre=='Inbox'}">
-                                                </c:when>    
-                                                <c:when test="${folder.nombre=='Sent'}">
-                                                </c:when>
-                                                <c:when test="${folder.nombre=='Trash'}">
-                                                </c:when>    
-                                                <c:otherwise>
-                                                    <input onclick="borrarFolder(${folder.id})" type="image" src="<c:url value="/recursos/img/btn/borrar.svg"/>" width="30px" data-placement="bottom" title="Delete">
-                                                </c:otherwise>
-                                            </c:choose>
-                                            
-                                        </td>
-                                    </tr>
+                                    <c:if test = "${folder.nombre!='Trash'}">
+                                        <tr  id="folder_${folder.id}">
+                                            <td>${folder.id}</td>
+                                            <td>${folder.nombre}</td>
+                                            <td>
+                                                <c:choose>
+                                                    <c:when test="${folder.nombre=='Inbox'}">
+                                                    </c:when>    
+                                                    <c:when test="${folder.nombre=='Sent'}">
+                                                    </c:when>
+                                                    <c:when test="${folder.nombre=='Trash'}">
+                                                    </c:when>    
+                                                    <c:otherwise>
+                                                        <input onclick="borrarFolder(${folder.id})" type="image" src="<c:url value="/recursos/img/btn/borrar.svg"/>" width="30px" data-placement="bottom" title="Delete">
+                                                    </c:otherwise>
+                                                </c:choose>
+                                            </td>
+                                        </tr>
+                                    </c:if>
                                 </c:forEach>
                             </table>     
                             <div class="text-center">
