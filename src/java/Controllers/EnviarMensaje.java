@@ -86,7 +86,7 @@ public class EnviarMensaje {
                 String[] ids = new String[1];
                 ids[0]=""+rs.getInt("ClassID");
                 x.setId(ids);
-                x.setName(rs.getString("Name"));
+                x.setName(rs.getString("Name")+ " "+ rs.getString("Section"));
                 grades.add(x);
             }
         }catch(SQLException ex){
@@ -117,19 +117,19 @@ public class EnviarMensaje {
         //SELECT DE GRADOS
         if(id.equals("0"))
            try{
-            ResultSet rs = Homepage.st2.executeQuery("SELECT GradeLevel,GradeLevelID FROM GradeLevels");
-            Level l = new Level();
-            l.setName("Select level");
-            grades.add(l);
-            while(rs.next())
-            {
-                Level x = new Level();
-                 String[] ids = new String[1];
-                 ids[0]=""+rs.getInt("GradeLevelID");
-                x.setId(ids);
-                x.setName(rs.getString("GradeLevel"));
-            grades.add(x);
-            }
+                ResultSet rs = Homepage.st2.executeQuery("SELECT GradeLevel,GradeLevelID FROM GradeLevels");
+                Level l = new Level();
+                l.setName("Select level");
+                grades.add(l);
+                while(rs.next())
+                {
+                    Level x = new Level();
+                     String[] ids = new String[1];
+                     ids[0]=""+rs.getInt("GradeLevelID");
+                    x.setId(ids);
+                    x.setName(rs.getString("GradeLevel"));
+                grades.add(x);
+                }
            }catch(SQLException ex){
                StringWriter errors = new StringWriter();
                 ex.printStackTrace(new PrintWriter(errors));
@@ -161,7 +161,7 @@ public class EnviarMensaje {
                  String[] ids = new String[1];
                  ids[0]=""+rs.getInt("ClassID");
                 x.setId(ids);
-                x.setName(rs.getString("Name"));
+                x.setName(rs.getString("Name") + " "+ rs.getString("Section"));
             grades.add(x);
             }
            }catch(SQLException ex){
@@ -199,8 +199,14 @@ public class EnviarMensaje {
     {         
         ArrayList<Students> listaAlumnos = new ArrayList<>();
         try {
-             ResultSet rs= Homepage.st2.executeQuery("select * from Roster inner join Students on "
-                     + "Roster.StudentID = Students.StudentID where Roster.ClassID ="+gradeid);
+            int termId = 1, yearId = 1;
+            ResultSet rs = Homepage.st2.executeQuery("select defaultyearid,defaulttermid from ConfigSchool where configschoolid = 1");
+            while (rs.next()) {
+                termId = rs.getInt("defaulttermid");
+                yearId = rs.getInt("defaultyearid");
+            }
+            rs= Homepage.st2.executeQuery("select * from Roster inner join Students on "
+                     + "Roster.StudentID = Students.StudentID where Roster.ClassID="+gradeid+" and Roster.enrolled"+termId+"='1'");
             while (rs.next())
             {
                 Students alumnos = new Students();
@@ -218,8 +224,6 @@ public class EnviarMensaje {
         }
        
         return listaAlumnos;
-         
-         
     }
     
     /**
