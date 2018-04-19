@@ -63,14 +63,23 @@ public class EnviarMensaje {
         l.setName("Select class");
         grades.add(l);
         try{
-            mv.addObject("listaAlumnos", this.getStudents());
+            int termId = 1, yearId = 1;
+            ResultSet rs2 = Homepage.st2.executeQuery("select defaultyearid,defaulttermid from ConfigSchool where configschoolid = 1");
+            while (rs2.next()) {
+                termId = rs2.getInt("defaulttermid");
+                yearId = rs2.getInt("defaultyearid");
+            }
             ResultSet rs;
+            String consulta = "";
             if(u.getType()==2 || u.getType()==0)   
-                rs = Homepage.st2.executeQuery("SELECT * FROM Classes where (StaffID="+u.getId()
+                consulta = "SELECT * FROM Classes where (StaffID="+u.getId()
                         +" or AltStaffID="+u.getId()+" or AidID="+u.getId()
-                        + ")");
-            else
-                rs = Homepage.st2.executeQuery("SELECT * FROM Classes");       
+                        + ") and "+"yearid="+yearId;
+            else{
+                consulta = "SELECT * FROM Classes where "+"yearid="+yearId;       
+                mv.addObject("listaAlumnos", this.getStudents());
+            }
+            rs = Homepage.st2.executeQuery(consulta);
             while(rs.next())
             {
                 Level x = new Level();
@@ -129,13 +138,20 @@ public class EnviarMensaje {
         //SELECT DE CLASES
         else
            try{
-            ResultSet rs;
-            if(u.getId()==2 || u.getId()==0)   
-                rs = Homepage.st2.executeQuery("SELECT * FROM Classes where (StaffID="+u.getId()
+            int termId = 1, yearId = 1;
+            ResultSet rs = Homepage.st2.executeQuery("select defaultyearid,defaulttermid from ConfigSchool where configschoolid = 1");
+            while (rs.next()) {
+                termId = rs.getInt("defaulttermid");
+                yearId = rs.getInt("defaultyearid");
+            }
+            String consulta = "";
+            if(u.getType()==2 || u.getType()==0)   
+                consulta = "SELECT * FROM Classes where (StaffID="+u.getId()
                         +" or AltStaffID="+u.getId()+" or AidID="+u.getId()
-                        + ")");
+                        + ") and "+"yearid="+yearId;
             else
-                rs = Homepage.st2.executeQuery("SELECT * FROM Classes");
+                consulta = "SELECT * FROM Classes where "+"yearid="+yearId;       
+            rs = Homepage.st2.executeQuery(consulta);
             Level l = new Level();
             l.setName("Select class");
             grades.add(l);
@@ -232,7 +248,7 @@ public class EnviarMensaje {
         time_end = System.currentTimeMillis();
         System.out.println("the task has taken "+ ( time_end - time_start ) +" milliseconds");
         hsr1.setContentType("application/json");
-hsr1.setCharacterEncoding("ISO-8859-1"); 
+        hsr1.setCharacterEncoding("ISO-8859-1"); 
         return data;
     }
     

@@ -183,12 +183,18 @@ public class EnviarmensajePadre {
     {
         ArrayList<Profesor> listaProfesores = new ArrayList<>();
         try {
+            int termId = 1, yearId = 1;
+            ResultSet rs2 = Homepage.st2.executeQuery("select defaultyearid,defaulttermid from ConfigSchool where configschoolid = 1");
+            while (rs2.next()) {
+                termId = rs2.getInt("defaulttermid");
+                yearId = rs2.getInt("defaultyearid");
+            }
             ArrayList<Integer> staffids = new ArrayList<>(); 
             ArrayList<String> classids = new ArrayList<>(); 
             String consulta = "select StaffID, Classes.ClassID , Courses.Title from Roster inner join Classes" +
                                 " on Roster.ClassID = Classes.ClassID" +
                                 " inner join Courses on  Classes.CourseID = Courses.CourseID"+          
-                                "  where Roster.StudentID = "+id;
+                                "  where Roster.StudentID = "+id +" and Roster.yearid="+yearId;
             ResultSet rs = Homepage.st2.executeQuery(consulta);
             while(rs.next()){
                 staffids.add(rs.getInt("StaffID"));
@@ -197,7 +203,7 @@ public class EnviarmensajePadre {
            
             for(Integer i : staffids){
                 consulta = "select FirstName,LastName,Email from Person where PersonID = "+i;
-                ResultSet rs2 = Homepage.st2.executeQuery(consulta);
+                rs2 = Homepage.st2.executeQuery(consulta);
                 if(rs2.next())
                     listaProfesores.add(new Profesor(rs2.getString("FirstName"),rs2.getString("LastName"),i,rs2.getString("Email")));
             }
