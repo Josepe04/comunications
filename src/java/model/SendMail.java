@@ -26,19 +26,19 @@ public class SendMail {
 //        props.put("mail.smtp.port", "587");
 //        props.put("mail.user", "nmohamed@eduwebgroup.com");
 //        props.put("mail.password", "kokowawa1");
-        String host = "smtp.gmail.com";
+        String host = "outlook.office365.com";
         props.put("mail.smtp.starttls.enable", "true");
         props.put("mail.smtp.host", host);
-        props.put("mail.smtp.user", "info.ca.pan2018");
-        props.put("mail.smtp.password", "Kokowawa1");
-        props.put("mail.smtp.port", "587");
+        props.put("mail.smtp.user", "commapp");
+        props.put("mail.smtp.password", "Tut62672");
+        props.put("mail.smtp.port", "443");//587
         props.put("mail.smtp.auth", "true");
 //     
         Session session = Session.getDefaultInstance(props);
         for(String dest : m.getDestinatarios()){
             try {
                 MimeMessage message = new MimeMessage(session);
-                message.setFrom(new InternetAddress("info.ca.pan2018"));
+                message.setFrom(new InternetAddress("commapp"));
                 // put here if reciepient is not empty, incase the parent doe snot have an email on renweb
 
                 message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(dest));//dest
@@ -51,7 +51,8 @@ public class SendMail {
     //            Transport.send(message);
 
                 Transport transport = session.getTransport("smtp");
-                transport.connect(host, "info.ca.pan2018", "Kokowawa1");
+//                transport.connect(host, "info.ca.pan2018", "Kokowawa1");
+                transport.connect(host, "commapp", "Tut62672");
                 transport.sendMessage(message, message.getAllRecipients());
                 transport.close();
                 System.out.println("Sent message successfully....");
