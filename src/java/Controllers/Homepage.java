@@ -308,16 +308,24 @@ public class Homepage extends MultiActionController  {
             while(rs2.next()){
                 listaFolders.add(new Folder(rs2.getString(2),rs2.getString(1)));
             }
-         }catch(SQLException ex){
+        }catch(SQLException ex){
             System.out.println("Error leyendo Alumnos: " + ex);
             StringWriter errors = new StringWriter();
             ex.printStackTrace(new PrintWriter(errors));
-         }
-         mv.addObject("lista", listaMensajes);
-         mv.addObject("folders", listaFolders);
-         mv.addObject("nombrefolder",nombreFolder);
-         mv.addObject("idfolder",idFolder);
-         return mv;
+        }
+        mv.addObject("lista", listaMensajes);
+        mv.addObject("folders", listaFolders);
+        mv.addObject("nombrefolder",nombreFolder);
+        mv.addObject("idfolder",idFolder);
+        String error = hsr.getParameter("error");
+        if(error!= null && error.equals("1")){
+            mv.addObject("error", 1);
+            mv.addObject("mensaje",hsr.getParameter("mensaje"));
+        }else if(error != null && error.equals("0")){
+            mv.addObject("error", 1);
+            mv.addObject("mensaje","Messages succesfully send.");
+        }
+        return mv;
     }
     
     

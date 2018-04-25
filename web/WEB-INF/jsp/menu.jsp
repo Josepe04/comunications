@@ -556,15 +556,17 @@
                                         
                                     function showReply(){
                                         $('#cke_NotificationMessage').show();
+                                        $('#reply_button').show();
                                     }
                                     
                                     function hideReply(){
+                                        $('#reply_button').hide();
                                         $('#cke_NotificationMessage').hide();
                                     }
                                 </script>
 
                                 <div class="col-xs-12 text-center">
-                                    <input class="btn btn-primary btn-lg" type="submit" name="Submit" value="Reply"onclick="rellenarText()">
+                                    <input class="btn btn-primary btn-lg" id="reply_button" type="submit" name="Submit" value="Reply"onclick="rellenarText()">
                                 </div>
                             </form:form>
                         </div>
@@ -639,6 +641,26 @@
             </div>
 
           </div>
+        </div>
+        <c:if test="${error==1}">
+            <script>
+                $(document).ready(function () {
+                    $('#errorModal').modal('show');
+                });
+            </script>
+        </c:if>
+        <div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button onclick="$('#errorModal').modal('hide');" type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <!--        <h4 class="modal-title" id="myModalLabel">Modal title</h4>-->
+                    </div>
+                    <div class="modal-body text-center">
+                        <h4>${mensaje}</h4>
+                    </div>
+                </div>
+            </div>
         </div>
     </body>
 </html>

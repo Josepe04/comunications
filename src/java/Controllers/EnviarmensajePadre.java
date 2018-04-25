@@ -98,6 +98,8 @@ public class EnviarmensajePadre {
         ArrayList<String> destinationList = new ArrayList();
         String msgid = "";
         String consulta;
+        String mensajeError="The next custody don't have mail: ";
+        String lostEmails = "";
         
         /**
          * Saco el nombre del sender de renweb
@@ -135,6 +137,7 @@ public class EnviarmensajePadre {
               destinationList.add(dest);
               emails.add(rs2.getString(1));
           }else{
+              lostEmails += rs.getString("name")+" , ";
               ActivityLog.nuevaEntrada(from,fromName,dest, "no email", "El custody no tiene corrreo");
           }
         }
@@ -169,7 +172,20 @@ public class EnviarmensajePadre {
         m.setDestinatarios(emails);
         
         //Esta funcion envia el correo
-        SendMail.SendMail(m,from);
+        try{
+            SendMail.SendMail(m,from);
+        }catch(Exception e){
+            mv = new ModelAndView("enviarmensaje");
+            mv.addObject("error", "Connection error");
+            return mv;
+        }
+        if(lostEmails.length()>1){
+            mensajeError+=lostEmails;
+            mv.addObject("error", 1);
+            mv.addObject("mensaje", mensajeError);
+        }else{
+            mv.addObject("error", 0);
+        }
         return mv;
     }
     
