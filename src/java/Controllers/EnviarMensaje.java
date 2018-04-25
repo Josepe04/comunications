@@ -389,7 +389,7 @@ public class EnviarMensaje {
             while(rs.next()){
                 String mail = rs.getString("mail");
                 String destId = rs.getString(1);
-                if(mail != null){
+                if(!mail.isEmpty()&& mail != null && !mail.equals("")&& !mail.equals("0")){
                     destinationList.add(destId);
                     destinationEmails.add(mail);
                 } else
