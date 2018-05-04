@@ -349,7 +349,7 @@ public class EnviarMensaje {
          if(mv!=null)
              return mv;  
         
-        String mensajeError="The next custody don't have mail: ";
+        String mensajeError="The following parents don't have email address:<br> ";
         String lostEmails = "";
         String from = ""+((User)hsr.getSession().getAttribute("user")).getId();
         String[] destinationListAux = hsr.getParameterValues("destino[]");
@@ -395,7 +395,7 @@ public class EnviarMensaje {
                     destinationList.add(destId);
                     destinationEmails.add(mail);
                 } else{
-                    lostEmails += rs.getString("name")+" , ";
+                    lostEmails += rs.getString("name")+rs.getString("lname")+" , ";
                     ActivityLog.nuevaEntrada(from,fromName,destId, "no email", "El custody no tiene corrreo");
                 }
             }
@@ -441,14 +441,14 @@ public class EnviarMensaje {
         
         //esta funcion envia el correo
         try{
-            SendMail.SendMail(m,from);
+         SendMail.SendMail(m,from);
         }catch(Exception e){
             mv = new ModelAndView("enviarmensaje");
             mv.addObject("error", "Connection error");
             return mv;
         }
         mv = new ModelAndView("redirect:/menu/start.htm?folder=null");
-        if(lostEmails.length()>1){
+        if(lostEmails.length()>=1){
             mensajeError+=lostEmails;
             mv.addObject("error", 1);
             mv.addObject("mensaje", mensajeError);
